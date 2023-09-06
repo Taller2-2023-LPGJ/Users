@@ -1,24 +1,15 @@
-'use strict';
-
 const express = require('express');
+const bodyParser = require('body-parser');
+const authRoute = require('./src/routes/authRoute');
 
-// Constants
-const PORT = 8080;
-const HOST = '0.0.0.0';
-
-// App
 const app = express();
+const port = 8080;
 
-app.get('/', (req, res) => {
-    res.send('Hello World');
-});
+app.use(bodyParser.json());
 
-app.post('/users', (req, res) => {
-    //const { name, email } = req.body;
-    res.send('AAAAAAA');
-    //res.send('registrado: '+ name);
-});
+// Include authentication routes
+app.use('/', authRoute);
 
-app.listen(PORT, HOST, () => {
-    console.log(`Running on http://${HOST}:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
