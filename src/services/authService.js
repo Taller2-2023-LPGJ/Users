@@ -2,10 +2,13 @@ const bcrypt = require('bcrypt');
 
 const authDatabase = require('../database/authDatabase');
 
-const BCRYPT_ROUNDS = 10;
+const bcryptRounds = 10;
+const usernameRegex = /^[a-zA-Z0-9_]{4,15}$/;
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{7,32}$/;
+const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 function ecryptPassword(password){
-	bcrypt.hash(password, BCRYPT_ROUNDS, (err, hash) => {
+	bcrypt.hash(password, bcryptRounds, (err, hash) => {
 		if (err) {
 			throw err;
 		}
@@ -15,11 +18,11 @@ function ecryptPassword(password){
 }
 
 async function signUp(username, email, password){
-	if(!username){
+	if(!usernameRegex.test(username)){
 		throw new Error('Enter a valid username.');
-	} else if(!email){
-		throw new Error('Enter an email.');
-	} else if(!password){
+	} else if(!emailRegex.test(email)){
+		throw new Error('Enter a valid email.');
+	} else if(!passwordRegex.test(password)){
 		throw new Error('Enter a valid password.');
 	}
 	
@@ -34,10 +37,9 @@ async function signUp(username, email, password){
 }
 
 async function signIn(userIdentifier, password){
-	console.log(userIdentifier);
-	if(!userIdentifier){
+	if(!usernameRegex.test(userIdentifier) && !emailRegex.test(userIdentifier)){
 		throw new Error('Enter a valid username or email.');
-	} else if(!password){
+	} else if(!passwordRegex.test(password)){
 		throw new Error('Enter a valid password.');
 	}
 
@@ -45,7 +47,6 @@ async function signIn(userIdentifier, password){
 		throw new Error('Invalid username or password.');
 	}
 
-	//Devolver token
 	return '123456';
 }
 
