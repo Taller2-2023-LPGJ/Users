@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
-
 const authDatabase = require('../database/authDatabase');
+const Exception = require('./exception');
 
 const bcryptRounds = 10;
 const usernameRegex = /^[a-zA-Z0-9_]{4,15}$/;
@@ -19,11 +19,11 @@ function ecryptPassword(password){
 
 async function signUp(username, email, password){
 	if(!usernameRegex.test(username)){
-		throw new Error('Enter a valid username.');
+		throw new Exception('Enter a valid username.', 422);
 	} else if(!emailRegex.test(email)){
-		throw new Error('Enter a valid email.');
+		throw new Exception('Enter a valid email.', 422);
 	} else if(!passwordRegex.test(password)){
-		throw new Error('Enter a valid password.');
+		throw new Exception('Enter a valid password.', 422);
 	}
 	
 	try{
@@ -33,21 +33,18 @@ async function signUp(username, email, password){
 	} catch(err){
 		throw err;
 	}
-	//Devolver token
 }
 
 async function signIn(userIdentifier, password){
 	if(!usernameRegex.test(userIdentifier) && !emailRegex.test(userIdentifier)){
-		throw new Error('Enter a valid username or email.');
+		throw new Exception('Enter a valid username or email.', 422);
 	} else if(!passwordRegex.test(password)){
-		throw new Error('Enter a valid password.');
+		throw new Exception('Enter a valid password.', 422);
 	}
 
 	if(!(await authDatabase.verifyUser(userIdentifier, password))) {
-		throw new Error('Invalid username or password.');
+		throw new Exception('Invalid username or password.', 401);
 	}
-
-	return '123456';
 }
 
 module.exports = {

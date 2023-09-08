@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const { sessionToken } = require('../services/tokenService');
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
@@ -6,10 +7,9 @@ const signUp = async (req, res) => {
     try{
 		await authService.signUp(username, email, password);
 
-        res.status(200).json('Successful sign-up');
-	} catch(error){
-        console.error(error);
-        res.status(500).json({ message: 'User sign up error' });
+        res.status(200).json({token: sessionToken(username)});
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
     }
 }
 
@@ -19,10 +19,9 @@ const signIn = async (req, res) => {
     try{
 		await authService.signIn(userIdentifier, password);
 
-        res.status(200).json('Successful sign-in.');
-	} catch(error){
-        console.error(error);
-        res.status(500).json({ message: 'User register Error' });
+        res.status(200).json({token: tokenService.sessionToken(userIdentifier)});
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
     }
 }
 

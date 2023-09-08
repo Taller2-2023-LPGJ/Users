@@ -2,9 +2,9 @@ const { Router } = require('express');
 const router = Router();
 
 const {
-    sessionToken,
+    refreshToken,
 } = require('../controllers/tokenController');
 
-router.post('/', sessionToken);
+router.post('/', refreshToken);
 
 module.exports = router;

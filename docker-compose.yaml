@@ -5,7 +5,7 @@ services:
     container_name: t2-users
     build: . 
     ports:
-      - '8080:8080'  # Adjust the ports as needed
+      - 8080:8080  # Adjust the ports as needed
     volumes:
       - './:/usr/src/app'
 
@@ -18,14 +18,16 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
-      - "8081:8081"
+      - 8081:8081
 
   # Servicio para PgAdmin
   pgadmin:
-    image: dpage/pgadmin4:7.5
+    image: dpage/pgadmin4:latest
     container_name: t2-users-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@gmail.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8082:8082"
+      - 8082:80
+    depends_on:
+      - postgres
