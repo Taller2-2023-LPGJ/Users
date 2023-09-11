@@ -8,13 +8,8 @@ const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{7,32}$/;
 const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 function ecryptPassword(password){
-	bcrypt.hash(password, bcryptRounds, (err, hash) => {
-		if (err) {
-			throw err;
-		}
-		
-		return hash;
-	  })
+	var hash = bcrypt.hashSync(password, bcryptRounds);
+	return hash;
 }
 
 async function signUp(username, email, password){
@@ -28,7 +23,6 @@ async function signUp(username, email, password){
 	
 	try{
 		password = ecryptPassword(password);
-
 		await authDatabase.createUser(username, email, password);
 	} catch(err){
 		throw err;

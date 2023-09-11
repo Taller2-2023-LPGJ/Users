@@ -5,7 +5,7 @@ const authRoute = require('./src/routes/authRoute');
 const tokenRoute = require('./src/routes/tokenRoute');
 
 const app = express();
-const port = 8080;
+const port = process.env.NODE_DOCKER_PORT;
 
 app.use(bodyParser.json());
 

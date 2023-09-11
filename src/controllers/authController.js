@@ -18,8 +18,8 @@ const signIn = async (req, res) => {
 
     try{
 		await authService.signIn(userIdentifier, password);
-
-        res.status(200).json({token: tokenService.sessionToken(userIdentifier)});
+        
+        res.status(200).json({token: sessionToken(userIdentifier)});
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }
