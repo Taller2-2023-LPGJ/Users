@@ -1,0 +1,70 @@
+version: '3.9'
+services:
+  #Servicio para NodeJS
+  app:
+    container_name: t2-users
+    build: . 
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT  # Adjust the ports as needed
+    volumes:
+      - './:/usr/src/app'
+
+  # Servicio para PostgreSQL
+  postgres:
+    image: postgres:latest
+    env_file: ./.env
+    container_name: t2-users-db
+    restart: always
+    environment:
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    ports:
+      - $POSTGRES_LOCAL_PORT:$POSTGRES_DOCKER_PORT
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # Servicio para PgAdmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file: ./.env
+    container_name: t2-users-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - $PGADMIN_LOCAL_PORT:$PGADMIN_DOCKER_PORT
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+  
+  prisma-postgres-api:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prisma-postgres-api
+    depends_on:
+      - postgres
+      - app
+    ports:
+      - "5051:5051"
+    entrypoint: ["bash", "-c", "sleep 10 && npx prisma migrate dev --name init"]
+    restart: "no"
+
+  # dbsetup:
+  #   image: postgres
+  #   env_file: ./.env
+  #   depends_on:
+  #     - postgres
+  #   restart: "no"
+  #   volumes:
+  #     - ./initdb:/var/local/initdb
+  #   entrypoint: ["bash", "-c", "sleep 10 && cd /var/local/initdb && PGPASSWORD=$${POSTGRES_PASSWORD} POSTGRES_HOST_AUTH_METHOD=trust psql -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB} -a -f migrations.sql"]
+
+volumes:    
+  postgres-data:
+  pgadmin-data:
