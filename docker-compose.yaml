@@ -37,6 +37,20 @@ services:
       - postgres
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+  
+  prisma-postgres-api:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prisma-postgres-api
+    depends_on:
+      - postgres
+      - app
+    ports:
+      - "5051:5051"
+    entrypoint: ["bash", "-c", "sleep 10 && npx prisma migrate dev --name init"]
+    restart: "no"
 
   # dbsetup:
   #   image: postgres
