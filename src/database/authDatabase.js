@@ -14,6 +14,7 @@ async function createUser(username, email, password){
             },
         });
     } catch(err){
+        console.log(err);
         switch (err.code) {
             case '23505': // Unique constraint violation
                 throw new Exception('Username or email already taken.', 403);
