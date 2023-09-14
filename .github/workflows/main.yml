@@ -4,17 +4,19 @@ on:
     branches: [ "main", "development" ]
 
 jobs:
+
   devflow:
     runs-on: ubuntu-latest
     steps:
-      - name: "Context Setup"
-        uses: okteto/context@latest
-        with:
-          token: ${{ secrets.OKTETO_TOKEN }}
-
-      - name: "Build"
-        uses: okteto/build@latest
-        with:
-          tag: myapp-backend:latest
-          file: Dockerfile
-          path: backend
+    
+    - name: checkout
+      uses: actions/checkout@master
+    
+    - uses: okteto/context@latest
+      with:
+        token: ${{ secrets.OKTETO_TOKEN }}
+    
+    - name: "Create devlopment environments namespace"
+      uses: okteto/namespace@latest
+      with:
+        namespace: snap-msg-auth-user-julianquino
