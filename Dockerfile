@@ -15,8 +15,6 @@ RUN npm install
 
 RUN npx prisma generate
 
-RUN command
-
 # Copy the rest of the application code to the container
 COPY . .
 

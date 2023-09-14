@@ -6,7 +6,7 @@ async function createUser(username, email, password){
     const prisma = new PrismaClient();
 
     try{
-        await prisma.user.create({
+        await prisma.users.create({
             data: {
                 username,
                 email,
@@ -30,7 +30,7 @@ async function verifyUser(userIdentifier, password){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.user.findFirst({
+        var user = await prisma.users.findFirst({
             where: {
                 OR: [
                     { email: userIdentifier },
