@@ -10,10 +10,14 @@ COPY package*.json ./
 # generated prisma files
 COPY prisma ./prisma/
 
+COPY env.example ./.env
+
 # Install project dependencies
 RUN npm install
 
 RUN npx prisma generate
+
+RUN command
 
 # Copy the rest of the application code to the container
 COPY . .
