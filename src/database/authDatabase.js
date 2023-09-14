@@ -18,7 +18,10 @@ async function createUser(username, email, password){
         switch (err.code) {
             case '23505': // Unique constraint violation
                 throw new Exception('Username or email already taken.', 403);
+            case 'P2002': // Unique constraint violation
+                throw new Exception('Username or email already taken.', 403);
             default:
+                console.log(err);
                 throw new Exception('An unexpected error has occurred. Please try again later.', 500);
           }
     } finally{
@@ -41,6 +44,7 @@ async function verifyUser(userIdentifier, password){
 
         return user && bcrypt.compareSync(password, user.password);
     } catch(err){
+        console.log(err);
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
         await prisma.$disconnect();
