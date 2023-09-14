@@ -6,7 +6,7 @@ async function createUser(username, email, password){
     const prisma = new PrismaClient();
 
     try{
-        await prisma.user.create({
+        await prisma.users.create({
             data: {
                 username,
                 email,
@@ -14,10 +14,14 @@ async function createUser(username, email, password){
             },
         });
     } catch(err){
+        console.log(err);
         switch (err.code) {
             case '23505': // Unique constraint violation
                 throw new Exception('Username or email already taken.', 403);
+            case 'P2002': // Unique constraint violation
+                throw new Exception('Username or email already taken.', 403);
             default:
+                console.log(err);
                 throw new Exception('An unexpected error has occurred. Please try again later.', 500);
           }
     } finally{
@@ -29,7 +33,7 @@ async function verifyUser(userIdentifier, password){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.user.findFirst({
+        var user = await prisma.users.findFirst({
             where: {
                 OR: [
                     { email: userIdentifier },
@@ -40,6 +44,7 @@ async function verifyUser(userIdentifier, password){
 
         return user && bcrypt.compareSync(password, user.password);
     } catch(err){
+        console.log(err);
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
         await prisma.$disconnect();
