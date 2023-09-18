@@ -1,10 +1,10 @@
 const { sessionToken } = require('../services/tokenService');
 
 const refreshToken = (req, res) => {
-    const { user } = req.body;
+    const { username } = req.body;
 
     res.status(200).json({
-        "token": sessionToken(user),
+        "token": sessionToken(username),
     });
 }
 
