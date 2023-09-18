@@ -44,7 +44,38 @@ async function verifyUser(userIdentifier, password){
 
         return user && bcrypt.compareSync(password, user.password);
     } catch(err){
-        console.log(err);
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
+async function getUser(username){
+    const prisma = new PrismaClient();
+
+	try {
+        var user = await prisma.users.findFirst({
+            where: { username: username }
+        });
+
+        return user;
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
+async function updateUser(user){
+    const prisma = new PrismaClient();
+
+	try {
+        await prisma.users.update({
+            where: { username: user.username },
+            data: user
+        })
+
+    } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
         await prisma.$disconnect();
@@ -53,5 +84,7 @@ async function verifyUser(userIdentifier, password){
 
 module.exports = {
     createUser,
-    verifyUser
+    verifyUser,
+    getUser,
+    updateUser
 };
