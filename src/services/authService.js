@@ -13,13 +13,12 @@ function ecryptPassword(password){
 }
 
 async function signUp(username, email, password){
-	if(!usernameRegex.test(username)){
+	if(!usernameRegex.test(username))
 		throw new Exception('Enter a valid username.', 422);
-	} else if(!emailRegex.test(email)){
+	else if(!emailRegex.test(email))
 		throw new Exception('Enter a valid email.', 422);
-	} else if(!passwordRegex.test(password)){
+	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
-	}
 	
 	try{
 		password = ecryptPassword(password);
@@ -30,15 +29,17 @@ async function signUp(username, email, password){
 }
 
 async function signIn(userIdentifier, password){
-	if(!usernameRegex.test(userIdentifier) && !emailRegex.test(userIdentifier)){
+	if(!usernameRegex.test(userIdentifier) && !emailRegex.test(userIdentifier))
 		throw new Exception('Enter a valid username or email.', 422);
-	} else if(!passwordRegex.test(password)){
+	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
-	}
 
-	if(!(await authDatabase.verifyUser(userIdentifier, password))) {
+	const username = await authDatabase.verifyUser(userIdentifier, password);
+
+	if(!username)
 		throw new Exception('Invalid username or password.', 401);
-	}
+
+	return username;
 }
 
 module.exports = {

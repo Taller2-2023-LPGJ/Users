@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-function sessionToken(user){
+function sessionToken(username){
 	return jwt.sign({
-        user: user,
+        username: username,
     }, process.env.TOKEN_SECRET_KEY);
 }
 
