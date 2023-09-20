@@ -50,7 +50,7 @@ async function recoverPassword(username){
 	if(!user){
 		throw new Exception('User not found.', 401);
 	}
-	let code = otpGenerator.generate(numberOfDigits, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: true, specialChars: false });
+	let code = otpGenerator.generate(numberOfDigits, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 	
 	user.reset_passkey = code;
 	user.reset_expireby = new Date(new Date().getTime() + 3 * 60000);
@@ -81,6 +81,8 @@ async function verifyCodeRecoverPassword(username, code){
 }
 
 async function setPassword(username, code, password){
+	if(!passwordRegex.test(password))
+		throw new Exception('Enter a valid password.', 422);
 	var user = await authDatabase.getUser(username);
 	if(!user){
 		throw new Exception('User not found.', 401);
