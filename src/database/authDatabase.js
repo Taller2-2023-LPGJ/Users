@@ -50,6 +50,24 @@ async function verifyUser(userIdentifier, password){
     }
 }
 
+async function verifyUserGoogle(email){
+    const prisma = new PrismaClient();
+
+	try {
+        var user = await prisma.users.findFirst({
+            where: { email: email }
+        });
+
+        if(!user)
+            return false;
+        return user.username;
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
 async function getUser(username){
     const prisma = new PrismaClient();
 
@@ -85,6 +103,7 @@ async function updateUser(user){
 module.exports = {
     createUser,
     verifyUser,
+    verifyUserGoogle,
     getUser,
     updateUser
 };
