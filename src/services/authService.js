@@ -3,6 +3,7 @@ const otpGenerator = require('otp-generator')
 const { transporter, bodyEmail }  = require('../config/mailer');
 const authDatabase = require('../database/authDatabase');
 const Exception = require('./exception');
+const { error } = require('console');
 
 const bcryptRounds = 10;
 const numberOfDigits = 6;
@@ -45,6 +46,41 @@ async function signIn(userIdentifier, password){
 	return username;
 }
 
+async function signUpGoogle(name, email){
+	name = name.replace(' ', '_');
+	var num = 0;
+	var user = await authDatabase.getUser(name);
+	while ( user!==null ) {
+		num++;
+		name = name + num;
+		user = await authDatabase.getUser(name);
+	}
+	if(!emailRegex.test(email))
+		throw new Exception('Enter a valid email.', 422);
+	
+	try{
+		var code = otpGenerator.generate(10, { digits: true, lowerCaseAlphabets: true, upperCaseAlphabets: true, specialChars: false });
+		var password = ecryptPassword(code);
+		await authDatabase.createUser(name, email, password);
+		var user = await authDatabase.getUser(name);
+		return user;
+	} catch(err){
+		throw err;
+	}
+}
+
+async function signInGoogle(email){
+	if(!emailRegex.test(email))
+		throw new Exception('Enter a valid username or email.', 422);
+
+	const username = await authDatabase.verifyUserGoogle(email);
+
+	if(!username)
+		throw new Exception('User not found.', 401);
+
+	return username;
+}
+
 async function recoverPassword(username){
 	var user = await authDatabase.getUser(username);
 	if(!user){
@@ -57,9 +93,9 @@ async function recoverPassword(username){
 	await authDatabase.updateUser(user);
 	var body = bodyEmail(user.username, code);
 	await transporter.sendMail({
-		from: '"Recuperación de comtraseña" <notificacionesservidoremail@gmail.com>',
+		from: '"Password recovery" <notificacionesservidoremail@gmail.com>',
 		to: user.email,
-		subject: "Recuperación de comtraseña",
+		subject: "Password recovery",
 		html: body,
 	});
 }
@@ -97,6 +133,8 @@ async function setPassword(username, code, password){
 module.exports = {
   	signUp,
   	signIn,
+	signUpGoogle,
+	signInGoogle,
 	recoverPassword,
 	verifyCodeRecoverPassword,
 	setPassword
