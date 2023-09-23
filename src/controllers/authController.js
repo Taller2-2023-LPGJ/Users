@@ -26,6 +26,29 @@ const signIn = async (req, res) => {
     }
 }
 
+const signUpGoogle = async (req, res) => {
+    const { name, email} = req.body;
+
+    try{
+		let user = await authService.signUpGoogle(name, email);
+
+        res.status(200).json({token: sessionToken(user.username)});
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
+    }
+}
+
+const signInGoogle = async (req, res) => {
+    const {email} = req.body;
+
+    try{
+		const username = await authService.signInGoogle(email);
+        
+        res.status(200).json({token: sessionToken(username)});
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
+    }
+}
 const recoverPassword = async (req, res) => {
     const {username} = req.body;
     try{
@@ -65,6 +88,8 @@ const setPassword = async (req, res) => {
 module.exports = {
     signUp,
 	signIn,
+    signUpGoogle,
+    signInGoogle,
     recoverPassword,
     verifyCodeRecoverPassword,
     setPassword

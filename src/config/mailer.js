@@ -25,7 +25,7 @@ exports.bodyEmail = function (username, code) {
                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tbody>
                                 <tr>
-                                    <td style="font-size:18px;line-height:25px;font-family:Arial,sans-serif,'Motiva Sans';text-align:left;color:#030303;padding-bottom:30px">Parece que estás intentando recuperar tu contraseña. Aquí tienes el código que necesitas para restablecer tu contraseña :</td>
+                                    <td style="font-size:18px;line-height:25px;font-family:Arial,sans-serif,'Motiva Sans';text-align:left;color:#030303;padding-bottom:30px">It looks like you are trying to recover your password. Here is the code you need to reset your password :</td>
                                 </tr>
                                 </tbody>
                             </table>
