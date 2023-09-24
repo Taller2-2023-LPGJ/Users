@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const axios = require('axios');
 const authService = require('../services/authService');
 const { sessionToken } = require('../services/tokenService');
 
@@ -19,10 +20,17 @@ const signUpConfirm = async (req, res) => {
 
     try{
 		await authService.signUpConfirm(username, code);
+        
+        const profileRes = await axios.post(process.env.PROFILE_URL, {username: username});
 
-        res.status(200).json({token: sessionToken(username)});
+        if(profileRes.status !== 200){
+            authService.deleteUser(username);
+            res.status(profileRes.status).json({message: response.data.message});
+        } else{
+            res.status(200).json({token: sessionToken(username)});
+        }
 	} catch(err){
-        res.status(err.statusCode).json({ message: err.message });
+        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
 }
 
@@ -63,6 +71,7 @@ const signInGoogle = async (req, res) => {
 }
 const recoverPassword = async (req, res) => {
     const {username} = req.body;
+
     try{
 		await authService.recoverPassword(username);
         
@@ -73,25 +82,24 @@ const recoverPassword = async (req, res) => {
 }
 
 const verifyCodeRecoverPassword = async (req, res) => {
-    const {username} = req.body;
-    const {code} = req.body;
+    const {username, code} = req.body;
+
     try{
 		await authService.verifyCodeRecoverPassword(username, code);
         
-        res.status(200).json('verified');
+        res.status(200).json('Recovery code has been successfully verified.');
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }
 }
 
 const setPassword = async (req, res) => {
-    const {username} = req.body;
-    const {code} = req.body;
-    const {password} = req.body;
+    const {username, code, password} = req.body;
+    
     try{
 		await authService.setPassword(username, code, password);
         
-        res.status(200).json('Password reset');
+        res.status(200).json('Password has been succesfully reset.');
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }

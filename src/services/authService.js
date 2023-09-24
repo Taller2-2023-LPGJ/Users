@@ -57,6 +57,14 @@ async function signUpConfirm(username, code){
 	}
 }
 
+async function deleteUser(username){
+	try{
+		await authDatabase.deleteUser(username);
+	} catch(err){
+		throw err;
+	}
+}
+
 async function signIn(userIdentifier, password){
 	if(!usernameRegex.test(userIdentifier) && !emailRegex.test(userIdentifier))
 		throw new Exception('Enter a valid username or email.', 422);
@@ -161,6 +169,7 @@ async function setPassword(username, code, password){
 module.exports = {
   	signUp,
 	signUpConfirm,
+	deleteUser,
   	signIn,
 	signUpGoogle,
 	signInGoogle,

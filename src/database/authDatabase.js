@@ -16,7 +16,6 @@ async function createUser(username, email, password, verified, passkey){
             },
         });
     } catch(err){
-        console.log(err);
         switch (err.code) {
             case '23505': // Unique constraint violation
             case 'P2002': // Unique constraint violation
@@ -24,6 +23,22 @@ async function createUser(username, email, password, verified, passkey){
             default:
                 throw new Exception('An unexpected error has occurred. Please try again later.', 500);
           }
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
+async function deleteUser(username){
+    const prisma = new PrismaClient();
+
+    try {
+        await prisma.user.delete({
+            where: {
+                username: username,
+            },
+        });
+    } catch(error) {
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
         await prisma.$disconnect();
     }
@@ -123,6 +138,7 @@ async function deleteUser(username){
 
 module.exports = {
     createUser,
+    deleteUser,
     verifyUser,
     verifyUserGoogle,
     getUser,
