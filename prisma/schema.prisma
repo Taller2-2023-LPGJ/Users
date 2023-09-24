@@ -14,6 +14,7 @@ model users {
   username String @id @db.VarChar(15)
   email String @unique @db.VarChar(254)
   password String @db.VarChar(72)
-  reset_passkey String? @db.VarChar(15)
+  verified Boolean @default(false)
+  passkey String? @db.VarChar(15)
   reset_expireby DateTime?
 }

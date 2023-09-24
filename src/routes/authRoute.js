@@ -3,6 +3,7 @@ const router = Router();
 
 const {
     signUp,
+    signUpConfirm,
     signIn,
     signUpGoogle,
     signInGoogle,
@@ -12,6 +13,7 @@ const {
 } = require('../controllers/authController');
 
 router.post('/signup', signUp);
+router.post('/signupconfirm', signUpConfirm);
 router.post('/signin', signIn);
 router.post('/signupgoogle', signUpGoogle);
 router.post('/signingoogle', signInGoogle);

@@ -8,6 +8,18 @@ const signUp = async (req, res) => {
     try{
 		await authService.signUp(username, email, password);
 
+        res.status(200).json('code sent');
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
+    }
+}
+
+const signUpConfirm = async (req, res) => {
+    const { username, code } = req.body;
+
+    try{
+		await authService.signUpConfirm(username, code);
+
         res.status(200).json({token: sessionToken(username)});
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
@@ -87,6 +99,7 @@ const setPassword = async (req, res) => {
 
 module.exports = {
     signUp,
+    signUpConfirm,
 	signIn,
     signUpGoogle,
     signInGoogle,

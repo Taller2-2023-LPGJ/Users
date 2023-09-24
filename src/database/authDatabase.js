@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const Exception = require('../services/exception');
 
-async function createUser(username, email, password){
+async function createUser(username, email, password, verified, passkey){
     const prisma = new PrismaClient();
 
     try{
@@ -11,6 +11,8 @@ async function createUser(username, email, password){
                 username,
                 email,
                 password,
+                verified,
+                passkey
             },
         });
     } catch(err){
@@ -33,10 +35,14 @@ async function verifyUser(userIdentifier, password){
 	try {
         var user = await prisma.users.findFirst({
             where: {
-                OR: [
-                    { username: userIdentifier },
-                    { email: userIdentifier },
-                ],
+                AND: [
+                    { verified: true },
+                    { OR:[
+                            { username: userIdentifier },
+                            { email: userIdentifier },
+                        ],
+                    }
+                ]
             },
         });
 
@@ -100,10 +106,26 @@ async function updateUser(user){
     }
 }
 
+async function deleteUser(username){
+    const prisma = new PrismaClient();
+
+	try {
+        var user = await prisma.users.delete({
+            where: { username: username }
+        });
+
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
 module.exports = {
     createUser,
     verifyUser,
     verifyUserGoogle,
     getUser,
-    updateUser
+    updateUser,
+    deleteUser
 };
