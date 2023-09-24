@@ -1,6 +1,5 @@
 const nodemailer = require("nodemailer");
 const axios = require('axios');
-const fetch = require('node-fetch');
 const authService = require('../services/authService');
 const { sessionToken } = require('../services/tokenService');
 
