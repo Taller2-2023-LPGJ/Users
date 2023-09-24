@@ -13,7 +13,7 @@ const signUp = async (req, res) => {
 
         if(profileRes.status !== 200){
             authService.deleteUser(username);
-            res.status(profileRes.status).json({token: sessionToken(username)});
+            res.status(profileRes.status).json({message: response.data.message});
         } else{
             res.status(200).json({token: sessionToken(username)});
         }
