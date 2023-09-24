@@ -10,7 +10,7 @@ COPY package*.json ./
 # generated prisma files
 COPY prisma ./prisma/
 
-COPY env.example ./.env
+COPY .env ./
 
 # Install project dependencies
 RUN npm install

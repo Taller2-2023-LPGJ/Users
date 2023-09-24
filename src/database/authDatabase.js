@@ -19,6 +19,7 @@ async function createUser(username, email, password){
             case 'P2002': // Unique constraint violation
                 throw new Exception('Username or email already taken.', 403);
             default:
+                console.log(err);
                 throw new Exception('An unexpected error has occurred. Please try again later.', 500);
           }
     } finally{
