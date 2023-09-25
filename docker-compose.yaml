@@ -44,7 +44,7 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
-      - taller2  
+      - taller2
   
   t2-users-prisma:
     stdin_open: true
