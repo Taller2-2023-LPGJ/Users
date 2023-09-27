@@ -105,6 +105,26 @@ async function getUser(username){
     }
 }
 
+async function searchUser(user){
+    const prisma = new PrismaClient();
+
+	try {
+        var userFound = await prisma.users.findFirst({
+            where: { 
+                OR:[
+                    { username: user },
+                    { email: user },
+                ],
+            }
+        });
+        return userFound;
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
 async function updateUser(user){
     const prisma = new PrismaClient();
 
@@ -143,5 +163,6 @@ module.exports = {
     verifyUserGoogle,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    searchUser
 };
