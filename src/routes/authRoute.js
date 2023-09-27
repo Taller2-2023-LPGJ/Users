@@ -21,4 +21,10 @@ router.post('/setPassword', setPassword);
 router.post('/recoverPassword', recoverPassword);
 router.post('/verifyCodeRecoverPassword', verifyCodeRecoverPassword);
 
+const {
+    searchUser
+} = require('../controllers/userController');
+
+router.get('/searchuser', searchUser);
+
 module.exports = router;
