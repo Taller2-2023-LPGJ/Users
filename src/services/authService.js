@@ -33,7 +33,7 @@ async function signUp(username, email, password){
 		}
 		let code = otpGenerator.generate(numberOfDigits, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 		password = ecryptPassword(password);
-		await authDatabase.createUser(username, email, password, false, code);
+		await authDatabase.createUser(username, email, password, false, code, false);
 		var body = bodyEmailConfirmRegistration(username, code);
 		await sendMailCode('Confirm Registration', email, body, code);
 	} catch(err){
@@ -72,16 +72,18 @@ async function signIn(userIdentifier, password){
 	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
 
-	const username = await authDatabase.verifyUser(userIdentifier, password);
+	const username = await authDatabase.verifyUser(userIdentifier, password, false);
 
 	if(!username)
 		throw new Exception('Invalid username or password.', 401);
+	if(username.isBlocked)
+		throw new Exception('User blocked.', 401);
 
 	return username;
 }
 
 async function signUpGoogle(name, email){
-	name = name.replace(' ', '_');
+	name = name.replaceAll(' ', '_');
 	var num = 0;
 	var user = await authDatabase.getUser(name);
 	while ( user!==null ) {
@@ -95,7 +97,7 @@ async function signUpGoogle(name, email){
 	try{
 		var code = otpGenerator.generate(10, { digits: true, lowerCaseAlphabets: true, upperCaseAlphabets: true, specialChars: false });
 		var password = ecryptPassword(code);
-		await authDatabase.createUser(name, email, password, true, null);
+		await authDatabase.createUser(name, email, password, true, null, false);
 		var user = await authDatabase.getUser(name);
 		return user;
 	} catch(err){
@@ -111,6 +113,8 @@ async function signInGoogle(email){
 
 	if(!username)
 		throw new Exception('User not found.', 401);
+	if(username.isBlocked)
+		throw new Exception('User blocked.', 401);
 
 	return username;
 }
@@ -167,6 +171,36 @@ async function setPassword(username, code, password){
 	await authDatabase.updateUser(user);
 }
 
+async function signUpAdmin(username, email, password){
+	if(!usernameRegex.test(username))
+		throw new Exception('Enter a valid username.', 422);
+	else if(!emailRegex.test(email))
+		throw new Exception('Enter a valid email.', 422);
+	else if(!passwordRegex.test(password))
+		throw new Exception('Enter a valid password.', 422);
+	
+	try{
+		password = ecryptPassword(password);
+		await authDatabase.createUser(username, email, password, true, null, true);
+	} catch(err){
+		throw err;
+	}
+}
+
+async function signInAdmin(email, password){
+	if(!emailRegex.test(email))
+		throw new Exception('Enter a valid email.', 422);
+	else if(!passwordRegex.test(password))
+		throw new Exception('Enter a valid password.', 422);
+
+	const username = await authDatabase.verifyUser(email, password, true);
+
+	if(!username)
+		throw new Exception('Invalid email or password.', 401);
+
+	return username;
+}
+
 module.exports = {
   	signUp,
 	signUpConfirm,
@@ -176,5 +210,7 @@ module.exports = {
 	signInGoogle,
 	recoverPassword,
 	verifyCodeRecoverPassword,
-	setPassword
+	setPassword,
+	signUpAdmin,
+	signInAdmin
 };

@@ -52,7 +52,14 @@ const signUpGoogle = async (req, res) => {
     try{
 		let user = await authService.signUpGoogle(name, email);
 
-        res.status(200).json({token: sessionToken(user.username)});
+        const profileRes = await axios.post(process.env.PROFILE_URL, {username: user.username});
+
+        if(profileRes.status !== 200){
+            authService.deleteUser(user.username);
+            res.status(profileRes.status).json({message: response.data.message});
+        } else{
+            res.status(200).json({token: sessionToken(user.username)});
+        }
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }
