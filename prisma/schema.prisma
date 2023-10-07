@@ -16,5 +16,7 @@ model users {
   password String @db.VarChar(72)
   verified Boolean @default(false)
   passkey String? @db.VarChar(15)
+  isAdmin Boolean @default(false)
+  isBlocked Boolean @default(false)
   reset_expireby DateTime?
 }
