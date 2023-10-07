@@ -12,6 +12,19 @@ const searchUser = async (req, res) => {
     }
 }
 
+const getUsers = async (req, res) => {
+    const query = req.query;
+
+    try{
+		let users = await userService.getUsers(query);
+
+        res.status(200).json(users);
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
+    }
+}
+
 module.exports = {
+    getUsers,
     searchUser
 }

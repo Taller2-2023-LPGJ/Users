@@ -2,9 +2,8 @@ const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const Exception = require('../services/exception');
 
-async function createUser(username, email, password, verified, passkey){
+async function createUser(username, email, password, verified, passkey, isAdmin){
     const prisma = new PrismaClient();
-
     try{
         await prisma.users.create({
             data: {
@@ -12,7 +11,8 @@ async function createUser(username, email, password, verified, passkey){
                 email,
                 password,
                 verified,
-                passkey
+                passkey,
+                isAdmin
             },
         });
     } catch(err){
@@ -44,14 +44,17 @@ async function deleteUser(username){
     }
 }
 
-async function verifyUser(userIdentifier, password){
+async function verifyUser(userIdentifier, password, isAdmin){
     const prisma = new PrismaClient();
 
 	try {
         var user = await prisma.users.findFirst({
             where: {
                 AND: [
-                    { verified: true },
+                    { 
+                        verified: true,
+                        isAdmin: isAdmin
+                    },
                     { OR:[
                             { username: userIdentifier },
                             { email: userIdentifier },
@@ -76,7 +79,10 @@ async function verifyUserGoogle(email){
 
 	try {
         var user = await prisma.users.findFirst({
-            where: { email: email }
+            where: { 
+                email: email,
+                isAdmin: false
+            }
         });
 
         if(!user)
@@ -156,6 +162,61 @@ async function deleteUser(username){
     }
 }
 
+async function getUsersPagination(query, isAdmin){
+    const prisma = new PrismaClient();
+    var username = query.username;
+    var email = query.email;
+    var isBlocked = query.isBlocked;
+    
+	try {
+        var page = parseInt(query.currentpage) || 1;
+        var amountperpage = parseInt(query.amountperpage) || 2;
+        var startIndex = (page - 1) * amountperpage;
+        var result = {};
+        var where = {};
+        where.isAdmin = isAdmin;
+        if(username){
+            where.username = {contains: username, mode: 'insensitive'}
+        }
+        if(email){
+            where.email = {contains: email, mode: 'insensitive'}
+        }
+        if(isBlocked){
+            if(isBlocked === 'true'){
+                where.isBlocked = true;
+            }
+            if(isBlocked === 'false'){
+                where.isBlocked = false;
+            }
+        }
+
+        var totalcount = await prisma.users.count({
+            where: where
+        });
+        var totalpage = Math.ceil(totalcount / amountperpage);
+        var currentpage = page || 0;
+        result.totalcount = totalcount;
+        result.totalpage = totalpage;
+        result.currentpage = currentpage;
+
+        result.paginateData = await prisma.users.findMany({
+            take: amountperpage,
+            skip: startIndex,
+            where: where,
+            select: {
+                username: true,
+                email: true,
+                isBlocked: true
+            },
+        });
+        return result;
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
 module.exports = {
     createUser,
     deleteUser,
@@ -164,5 +225,6 @@ module.exports = {
     getUser,
     updateUser,
     deleteUser,
-    searchUser
+    searchUser,
+    getUsersPagination
 };
