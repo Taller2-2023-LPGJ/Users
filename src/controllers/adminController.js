@@ -63,10 +63,23 @@ const getAdmins = async (req, res) => {
     }
 }
 
+const verifyUser = async (req, res) => {
+    const {username, action} = req.body;
+
+    try{
+		await userService.verifyUser(username, action);
+        
+        res.status(200).json('Action completed.');
+	} catch(err){
+        res.status(err.statusCode).json({ message: err.message });
+    }
+}
+
 module.exports = {
     signUp,
 	signIn,
     blockUser,
     unlockUser,
-    getAdmins
+    getAdmins,
+    verifyUser
 }
