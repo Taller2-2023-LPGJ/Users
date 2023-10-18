@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const Exception = require('../services/exception');
 
-async function createUser(username, email, password, verified, passkey, isAdmin){
+async function createUser(username, email, password, confirmedRegistration, passkey, isAdmin){
     const prisma = new PrismaClient();
     try{
         await prisma.users.create({
@@ -10,7 +10,7 @@ async function createUser(username, email, password, verified, passkey, isAdmin)
                 username,
                 email,
                 password,
-                verified,
+                confirmedRegistration,
                 passkey,
                 isAdmin
             },
@@ -52,7 +52,7 @@ async function verifyUser(userIdentifier, password, isAdmin){
             where: {
                 AND: [
                     { 
-                        verified: true,
+                        confirmedRegistration: true,
                         isAdmin: isAdmin
                     },
                     { OR:[
@@ -85,9 +85,7 @@ async function verifyUserGoogle(email){
             }
         });
 
-        if(!user)
-            return false;
-        return user.username;
+        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -167,7 +165,8 @@ async function getUsersPagination(query, isAdmin){
     var username = query.username;
     var email = query.email;
     var isBlocked = query.isBlocked;
-    
+    var verified = query.verified;
+
 	try {
         var page = parseInt(query.currentpage) || 1;
         var amountperpage = parseInt(query.amountperpage) || 2;
@@ -190,6 +189,10 @@ async function getUsersPagination(query, isAdmin){
             }
         }
 
+        if(verified){
+            where.verified = verified
+        }
+
         var totalcount = await prisma.users.count({
             where: where
         });
@@ -206,7 +209,8 @@ async function getUsersPagination(query, isAdmin){
             select: {
                 username: true,
                 email: true,
-                isBlocked: true
+                isBlocked: true,
+                verified: true
             },
         });
         return result;

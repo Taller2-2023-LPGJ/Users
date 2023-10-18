@@ -1,3 +1,4 @@
+const middleware = require('../middleware/middleware');
 const { Router } = require('express');
 const router = Router();
 
@@ -9,7 +10,8 @@ const {
     signInGoogle,
     setPassword,
     recoverPassword,
-    verifyCodeRecoverPassword
+    verifyCodeRecoverPassword,
+    verifyAuth
 } = require('../controllers/authController');
 
 router.post('/signup',signUp);
@@ -20,5 +22,6 @@ router.post('/signingoogle', signInGoogle);
 router.post('/setPassword', setPassword);
 router.post('/recoverPassword', recoverPassword);
 router.post('/verifyCodeRecoverPassword', verifyCodeRecoverPassword);
+router.post('/verifyauth', middleware.verifyAuth, verifyAuth);
 
 module.exports = router;
