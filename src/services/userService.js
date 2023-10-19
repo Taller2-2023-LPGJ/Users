@@ -84,18 +84,21 @@ async function verifyUser(username, action){
 		if(!user){
 			throw new Exception('User not found.', 422);
 		}
-
-		if(action === "Yes"){
-			if(user.verified === "Yes"){
-				throw new Exception('The user has already been verified.', 422);
+		if(user.verified === "Pending"){
+			if(action === "Yes"){
+				if(user.verified === "Yes"){
+					throw new Exception('The user has already been verified.', 422);
+				}
+			}else if(action === "No"){
+				if(user.verified === "No"){
+					throw new Exception('The user has already been denied verification.', 422);
+				}
+				user.verified = false;
+			}else{
+				throw new Exception('wrong action.', 422);
 			}
-		}else if(action === "No"){
-			if(user.verified === "No"){
-				throw new Exception('The user has already been denied verification.', 422);
-			}
-			user.verified = false;
 		}else{
-			throw new Exception('wrong action.', 422);
+			throw new Exception('No pending verification request exists for the user.', 422);
 		}
         user.verified = action;
 		await authDatabase.updateUser(user);
@@ -110,10 +113,16 @@ async function askForVerification(username){
 		if(!user){
 			throw new Exception('User not found.', 422);
 		}
-        if(user.isBlocked){
-			throw new Exception('User blocked.', 403);
+		if(user.isBlocked){
+			throw new Exception('User blocked.', 401);
 		}
-
+		if(user.verified === "Pending"){
+			throw new Exception('A request is currently in progress.', 422);
+		}
+		if(user.verified === "Yes"){
+			throw new Exception('The user profile has already been successfully verified.', 422);
+		}
+		
         user.verified = "Pending";
 		await authDatabase.updateUser(user);
 	} catch(err){
