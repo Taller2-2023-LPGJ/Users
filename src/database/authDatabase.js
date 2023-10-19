@@ -11,6 +11,7 @@ async function createUser(username, email, password, confirmedRegistration, pass
                 email,
                 password,
                 confirmedRegistration,
+                verified: isAdmin ? null : 'No',
                 passkey,
                 isAdmin
             },
