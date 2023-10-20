@@ -38,9 +38,9 @@ const signIn = async (req, res) => {
     const {userIdentifier, password} = req.body;
 
     try{
-		const username = await authService.signIn(userIdentifier, password);
+		const user = await authService.signIn(userIdentifier, password);
         
-        res.status(200).json({token: sessionToken(username)});
+        res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }

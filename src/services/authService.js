@@ -72,14 +72,14 @@ async function signIn(userIdentifier, password){
 	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
 
-	const username = await authDatabase.verifyUser(userIdentifier, password, false);
+	const user = await authDatabase.verifyUser(userIdentifier, password, false);
 
-	if(!username)
+	if(!user)
 		throw new Exception('Invalid username or password.', 422);
-	if(username.isBlocked)
+	if(user.isBlocked)
 		throw new Exception('User blocked.', 403);
 
-	return username;
+	return user;
 }
 
 async function signUpGoogle(name, email){
@@ -192,12 +192,12 @@ async function signInAdmin(email, password){
 	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
 
-	const username = await authDatabase.verifyUser(email, password, true);
+	const user = await authDatabase.verifyUser(email, password, true);
 
-	if(!username)
+	if(!user)
 		throw new Exception('Invalid email or password.', 422);
 
-	return username;
+	return user;
 }
 
 async function verifyAuthUser(username){
