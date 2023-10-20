@@ -67,7 +67,7 @@ async function verifyUser(userIdentifier, password, isAdmin){
 
         if(!user || !bcrypt.compareSync(password, user.password))
             return false;
-        return user.username;
+        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
