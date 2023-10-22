@@ -68,10 +68,12 @@ const verifyUser = async (req, res) => {
 
     try{
 		await userService.verifyUser(username, action);
-        
+        if(action === "Yes"){
+			await axios.put(process.env.PROFILE_URL + "verifyProfile/" + username, {username: username});
+		}
         res.status(200).json('Action completed.');
 	} catch(err){
-        res.status(err.statusCode).json({ message: err.message });
+        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
 }
 
