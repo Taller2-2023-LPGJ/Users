@@ -11,7 +11,8 @@ const {
     setPassword,
     recoverPassword,
     verifyCodeRecoverPassword,
-    verifyAuth
+    verifyAuth,
+    isAdmin
 } = require('../controllers/authController');
 
 router.post('/signup',signUp);
@@ -23,5 +24,6 @@ router.post('/setPassword', setPassword);
 router.post('/recoverPassword', recoverPassword);
 router.post('/verifyCodeRecoverPassword', verifyCodeRecoverPassword);
 router.post('/verifyauth', middleware.verifyAuth, verifyAuth);
+router.get('/isAdmin', isAdmin);
 
 module.exports = router;

@@ -1,7 +1,9 @@
 const nodemailer = require("nodemailer");
 const axios = require('axios');
 const authService = require('../services/authService');
+const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
+const jwt = require('jsonwebtoken');
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
@@ -120,6 +122,18 @@ const verifyAuth = async (req, res) => {
     }
 }
 
+const isAdmin = async (req, res) => {
+    var token = req.headers.token;
+    try{
+        var decodedClaims = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
+        var username = decodedClaims.username;
+        var isAdmin = await userService.isAdmin(username);
+        res.status(200).json(isAdmin);
+	} catch(err){
+        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
+    }
+}
+
 module.exports = {
     signUp,
     signUpConfirm,
@@ -129,5 +143,6 @@ module.exports = {
     recoverPassword,
     verifyCodeRecoverPassword,
     setPassword,
-    verifyAuth
+    verifyAuth,
+    isAdmin
 }
