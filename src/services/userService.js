@@ -119,7 +119,7 @@ async function askForVerification(username){
 
 async function blocked(username){
 	try{
-        const user = await authDatabase.blocked(username);
+        const user = await authDatabase.getUser(username);
 
 		if(!user)
 			throw new Exception('User not found.', 404);
