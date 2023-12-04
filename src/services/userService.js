@@ -29,24 +29,11 @@ async function blockUser(username){
 	}
 }
 
-async function isAdmin(username){
-	try{
-        var user = await authDatabase.getUser(username);
-		if(!user){
-			throw new Exception('User not found.', 422);
-		}
-
-        return user.isAdmin;
-	} catch(err){
-		throw err;
-	}
-}
-
 async function unlockUser(username){
 	try{
         var user = await authDatabase.getUser(username);
 		if(!user){
-			throw new Exception('User not found.', 422);
+			throw new Exception('User not found.', 404);
 		}
         if(!user.isBlocked){
 			throw new Exception('The user is already unlocked.', 403);
@@ -130,13 +117,37 @@ async function askForVerification(username){
 	}
 }
 
+async function blocked(username){
+	try{
+        const user = await authDatabase.blocked(username);
+
+		if(!user)
+			throw new Exception('User not found.', 404);
+
+        return {blocked: user.isBlocked};
+	} catch(err){
+		throw err;
+	}
+}
+
+async function isAdmin(username = '', email = ''){
+	try{
+		const admin = await authDatabase.isAdmin(username, email);
+
+		return admin && admin[0]
+	} catch(err){
+		throw err;
+	}
+}
+
 module.exports = {
     searchUser,
     blockUser,
-    isAdmin,
     unlockUser,
     getAdmins,
     getUsers,
 	verifyUser,
-	askForVerification
+	askForVerification,
+	blocked,
+	isAdmin
 };

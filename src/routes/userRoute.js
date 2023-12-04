@@ -1,4 +1,3 @@
-const middleware = require('../middleware/middleware');
 const { Router } = require('express');
 const router = Router();
 

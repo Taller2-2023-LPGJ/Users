@@ -114,21 +114,13 @@ const setPassword = async (req, res) => {
     }
 }
 
-const verifyAuth = async (req, res) => {
+const blocked = async (req, res) => {
+    const {username} = req.query;
+    
     try{
-        res.status(200).json('Auth full.');
-	} catch(err){
-        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
-    }
-}
+        const status = await userService.blocked(username);
 
-const isAdmin = async (req, res) => {
-    var token = req.headers.token;
-    try{
-        var decodedClaims = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
-        var username = decodedClaims.username;
-        var isAdmin = await userService.isAdmin(username);
-        res.status(200).json(isAdmin);
+        res.status(200).json(status);
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
@@ -143,6 +135,5 @@ module.exports = {
     recoverPassword,
     verifyCodeRecoverPassword,
     setPassword,
-    verifyAuth,
-    isAdmin
+    blocked
 }
