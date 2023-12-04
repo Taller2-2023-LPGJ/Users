@@ -1,9 +1,7 @@
-const nodemailer = require("nodemailer");
 const axios = require('axios');
 const authService = require('../services/authService');
 const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
-const jwt = require('jsonwebtoken');
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
