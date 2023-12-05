@@ -2,6 +2,7 @@ const axios = require('axios');
 const authService = require('../services/authService');
 const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
+const Exception = require('../services/exception');
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
