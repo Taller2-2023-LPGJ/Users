@@ -2,6 +2,7 @@ const axios = require('axios');
 const authService = require('../services/authService');
 const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
+const Exception = require('../services/exception');
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
@@ -25,6 +26,7 @@ const signIn = async (req, res) => {
         
         res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
+	    console.log(err);
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
 }
