@@ -1,6 +1,6 @@
-const nodemailer = require("nodemailer");
 const axios = require('axios');
 const authService = require('../services/authService');
+const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
 
 const signUp = async (req, res) => {
@@ -38,9 +38,9 @@ const signIn = async (req, res) => {
     const {userIdentifier, password} = req.body;
 
     try{
-		const username = await authService.signIn(userIdentifier, password);
+		const user = await authService.signIn(userIdentifier, password);
         
-        res.status(200).json({token: sessionToken(username)});
+        res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
     }
@@ -112,6 +112,18 @@ const setPassword = async (req, res) => {
     }
 }
 
+const blocked = async (req, res) => {
+    const {username} = req.query;
+    
+    try{
+        const status = await userService.blocked(username);
+
+        res.status(200).json(status);
+	} catch(err){
+        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
+    }
+}
+
 module.exports = {
     signUp,
     signUpConfirm,
@@ -120,5 +132,6 @@ module.exports = {
     signInGoogle,
     recoverPassword,
     verifyCodeRecoverPassword,
-    setPassword
+    setPassword,
+    blocked
 }

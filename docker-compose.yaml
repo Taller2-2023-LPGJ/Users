@@ -57,7 +57,7 @@ services:
       - t2-users-db
     ports:
       - "5051:5051"
-    entrypoint: ["bash", "-c", "sleep 10 && npx prisma migrate dev --name init"]
+    entrypoint: ["bash", "-c", "npx prisma migrate dev --name init"]
     restart: "no"
     networks:
       - taller2  
@@ -70,7 +70,7 @@ services:
   #   restart: "no"
   #   volumes:
   #     - ./initdb:/var/local/initdb
-  #   entrypoint: ["bash", "-c", "sleep 10 && cd /var/local/initdb && PGPASSWORD=$${POSTGRES_PASSWORD} POSTGRES_HOST_AUTH_METHOD=trust psql -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB} -a -f migrations.sql"]
+  #   entrypoint: ["bash", "-c", "cd /var/local/initdb && PGPASSWORD=$${POSTGRES_PASSWORD} POSTGRES_HOST_AUTH_METHOD=trust psql -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB} -a -f migrations.sql"]
 
 volumes:    
   postgres-data:

@@ -24,7 +24,21 @@ const getUsers = async (req, res) => {
     }
 }
 
+const askForVerification = async (req, res) => {
+    const { username } = req.body;
+
+    try{
+        await userService.askForVerification(username);
+
+        res.status(200).json('Verification request has been succesfully sent.');
+	} catch(err){
+        res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
+    }
+}
+
+askForVerification
 module.exports = {
     getUsers,
-    searchUser
+    searchUser,
+    askForVerification
 }

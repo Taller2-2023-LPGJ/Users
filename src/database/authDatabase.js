@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const Exception = require('../services/exception');
 
-async function createUser(username, email, password, verified, passkey, isAdmin){
+async function createUser(username, email, password, confirmedRegistration, passkey, isAdmin){
     const prisma = new PrismaClient();
     try{
         await prisma.users.create({
@@ -10,7 +10,8 @@ async function createUser(username, email, password, verified, passkey, isAdmin)
                 username,
                 email,
                 password,
-                verified,
+                confirmedRegistration,
+                verified: isAdmin ? null : 'No',
                 passkey,
                 isAdmin
             },
@@ -52,7 +53,7 @@ async function verifyUser(userIdentifier, password, isAdmin){
             where: {
                 AND: [
                     { 
-                        verified: true,
+                        confirmedRegistration: true,
                         isAdmin: isAdmin
                     },
                     { OR:[
@@ -66,7 +67,7 @@ async function verifyUser(userIdentifier, password, isAdmin){
 
         if(!user || !bcrypt.compareSync(password, user.password))
             return false;
-        return user.username;
+        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -78,16 +79,12 @@ async function verifyUserGoogle(email){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.users.findFirst({
+        return await prisma.users.findFirst({
             where: { 
                 email: email,
                 isAdmin: false
             }
         });
-
-        if(!user)
-            return false;
-        return user.username;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -99,11 +96,9 @@ async function getUser(username){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.users.findFirst({
+        return await prisma.users.findFirst({
             where: { username: username }
         });
-
-        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -151,10 +146,32 @@ async function deleteUser(username){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.users.delete({
+        await prisma.users.delete({
             where: { username: username }
         });
 
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
+async function isAdmin(username, email){
+    const prisma = new PrismaClient();
+
+	try {
+        return await prisma.users.findFirst({
+            where: { 
+                OR: [
+                    {username: username},
+                    {email: email}
+                ],
+            },
+            select: {
+                isAdmin: true
+            }
+        });
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -167,7 +184,8 @@ async function getUsersPagination(query, isAdmin){
     var username = query.username;
     var email = query.email;
     var isBlocked = query.isBlocked;
-    
+    var verified = query.verified;
+
 	try {
         var page = parseInt(query.currentpage) || 1;
         var amountperpage = parseInt(query.amountperpage) || 2;
@@ -190,6 +208,10 @@ async function getUsersPagination(query, isAdmin){
             }
         }
 
+        if(verified){
+            where.verified = verified
+        }
+
         var totalcount = await prisma.users.count({
             where: where
         });
@@ -206,7 +228,8 @@ async function getUsersPagination(query, isAdmin){
             select: {
                 username: true,
                 email: true,
-                isBlocked: true
+                isBlocked: true,
+                verified: true
             },
         });
         return result;
@@ -226,5 +249,6 @@ module.exports = {
     updateUser,
     deleteUser,
     searchUser,
+    isAdmin,
     getUsersPagination
 };

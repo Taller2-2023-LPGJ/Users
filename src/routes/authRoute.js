@@ -9,7 +9,8 @@ const {
     signInGoogle,
     setPassword,
     recoverPassword,
-    verifyCodeRecoverPassword
+    verifyCodeRecoverPassword,
+    blocked
 } = require('../controllers/authController');
 
 router.post('/signup',signUp);
@@ -20,5 +21,6 @@ router.post('/signingoogle', signInGoogle);
 router.post('/setPassword', setPassword);
 router.post('/recoverPassword', recoverPassword);
 router.post('/verifyCodeRecoverPassword', verifyCodeRecoverPassword);
+router.get('/blocked', blocked);
 
 module.exports = router;

@@ -27,7 +27,7 @@ async function signUp(username, email, password){
 	try{
 		let user = await authDatabase.getUser(username);
 		if(user){
-			if (!user.verified) {
+			if (!user.confirmedRegistration) {
 				await authDatabase.deleteUser(username);
 			}
 		}
@@ -45,13 +45,13 @@ async function signUpConfirm(username, code){
 	try{
 		var user = await authDatabase.getUser(username);
 		if(!user){
-			throw new Exception('User not found.', 401);
+			throw new Exception('User not found.', 400);
 		}
 		if(user.passkey !== code){
 			throw new Exception('Incorrect code.', 422);
 		}
 		user.passkey = null;
-		user.verified = true;
+		user.confirmedRegistration = true;
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -72,14 +72,14 @@ async function signIn(userIdentifier, password){
 	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
 
-	const username = await authDatabase.verifyUser(userIdentifier, password, false);
+	const user = await authDatabase.verifyUser(userIdentifier, password, false);
 
-	if(!username)
-		throw new Exception('Invalid username or password.', 401);
-	if(username.isBlocked)
-		throw new Exception('User blocked.', 401);
+	if(!user)
+		throw new Exception('Invalid username or password.', 422);
+	if(user.isBlocked)
+		throw new Exception('User blocked.', 403);
 
-	return username;
+	return user;
 }
 
 async function signUpGoogle(name, email){
@@ -109,20 +109,19 @@ async function signInGoogle(email){
 	if(!emailRegex.test(email))
 		throw new Exception('Enter a valid username or email.', 422);
 
-	const username = await authDatabase.verifyUserGoogle(email);
-
-	if(!username)
-		throw new Exception('User not found.', 401);
-	if(username.isBlocked)
+	const user = await authDatabase.verifyUserGoogle(email);
+	if(!user)
+		throw new Exception('User not found.', 422);
+	if(user.isBlocked)
 		throw new Exception('User blocked.', 401);
 
-	return username;
+	return user.username;
 }
 
 async function recoverPassword(username){
 	var user = await authDatabase.getUser(username);
 	if(!user){
-		throw new Exception('User not found.', 401);
+		throw new Exception('User not found.', 422);
 	}
 	let code = otpGenerator.generate(numberOfDigits, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 	
@@ -144,7 +143,7 @@ async function sendMailCode(fromTitle, email, body){
 async function verifyCodeRecoverPassword(username, code){
 	var user = await authDatabase.getUser(username);
 	if(!user){
-		throw new Exception('User not found.', 401);
+		throw new Exception('User not found.', 422);
 	}
 	let reset_expireby = new Date(user.reset_expireby);
 	let dateNow = new Date();
@@ -162,7 +161,7 @@ async function setPassword(username, code, password){
 		throw new Exception('Enter a valid password.', 422);
 	var user = await authDatabase.getUser(username);
 	if(!user){
-		throw new Exception('User not found.', 401);
+		throw new Exception('User not found.', 422);
 	}
 	await verifyCodeRecoverPassword(username, code);
 	user.password = ecryptPassword(password);
@@ -193,12 +192,23 @@ async function signInAdmin(email, password){
 	else if(!passwordRegex.test(password))
 		throw new Exception('Enter a valid password.', 422);
 
-	const username = await authDatabase.verifyUser(email, password, true);
+	const user = await authDatabase.verifyUser(email, password, true);
 
-	if(!username)
-		throw new Exception('Invalid email or password.', 401);
+	if(!user)
+		throw new Exception('Invalid email or password.', 422);
 
-	return username;
+	return user;
+}
+
+async function verifyAuthUser(username){
+	let user = await authDatabase.getUser(username);
+	if(!user){
+		throw new Exception('User not found.', 401);
+	}
+	if(user.isBlocked){
+		throw new Exception('User blocked.', 401);
+	}
+	return user;
 }
 
 module.exports = {
@@ -212,5 +222,6 @@ module.exports = {
 	verifyCodeRecoverPassword,
 	setPassword,
 	signUpAdmin,
-	signInAdmin
+	signInAdmin,
+	verifyAuthUser
 };
