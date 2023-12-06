@@ -23,6 +23,7 @@ async function blockUser(username){
 			throw new Exception('The user has already been blocked.', 401);
 		}
         user.isBlocked = true;
+		user.blockDate = new Date();
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -52,6 +53,7 @@ async function unlockUser(username){
 			throw new Exception('The user is already unlocked.', 403);
 		}
         user.isBlocked = false;
+		user.blockDate = null;
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -130,6 +132,15 @@ async function askForVerification(username){
 	}
 }
 
+async function getUser(username){
+	try{
+        var user = await authDatabase.getUser(username);
+		return user;
+	} catch(err){
+		throw err;
+	}
+}
+
 module.exports = {
     searchUser,
     blockUser,
@@ -137,6 +148,7 @@ module.exports = {
     unlockUser,
     getAdmins,
     getUsers,
+	getUser,
 	verifyUser,
 	askForVerification
 };

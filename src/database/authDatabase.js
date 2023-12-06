@@ -13,7 +13,9 @@ async function createUser(username, email, password, confirmedRegistration, pass
                 confirmedRegistration,
                 verified: isAdmin ? null : 'No',
                 passkey,
-                isAdmin
+                isAdmin,
+                creationDate: new Date()
+
             },
         });
     } catch(err){
@@ -146,21 +148,6 @@ async function updateUser(user){
     }
 }
 
-async function deleteUser(username){
-    const prisma = new PrismaClient();
-
-	try {
-        var user = await prisma.users.delete({
-            where: { username: username }
-        });
-
-    } catch(err){
-        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
-    }
-}
-
 async function getUsersPagination(query, isAdmin){
     const prisma = new PrismaClient();
     var username = query.username;
@@ -229,7 +216,6 @@ module.exports = {
     verifyUserGoogle,
     getUser,
     updateUser,
-    deleteUser,
     searchUser,
     getUsersPagination
 };

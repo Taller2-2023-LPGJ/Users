@@ -3,6 +3,16 @@ const axios = require('axios');
 const authService = require('../services/authService');
 const { sessionToken } = require('../services/tokenService');
 const userService = require('../services/userService');
+const StatsD  = require('hot-shots');
+const dogstatsd = new StatsD({
+    host: process.env.DD_AGENT_HOST,
+    globalTags: {
+      env: process.env.NODE_ENV,
+    },
+    errorHandler: function (error) {
+      console.error('Cannot connect to Datadog agent: ', error);
+    }
+});
 
 const signUp = async (req, res) => {
     const { username, email, password } = req.body;
@@ -24,6 +34,7 @@ const signIn = async (req, res) => {
         
         res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
+        console.log(err);
         res.status(err.statusCode).json({ message: err.message });
     }
 }
@@ -33,7 +44,7 @@ const blockUser = async (req, res) => {
 
     try{
 		await userService.blockUser(username);
-        
+        dogstatsd.increment('users.block.number_blocked');
         res.status(200).json('user blocked.');
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
@@ -45,7 +56,8 @@ const unlockUser = async (req, res) => {
 
     try{
 		await userService.unlockUser(username);
-        
+        let user = await userService.getUser(username);
+        dogstatsd.timing('users.block.number_blocked', new Date() - new Date(user.blockDate));
         res.status(200).json('Unlocked user.');
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });
