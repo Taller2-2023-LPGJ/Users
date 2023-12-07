@@ -40,7 +40,7 @@ const signUpConfirm = async (req, res) => {
             authService.deleteUser(username);
             res.status(profileRes.status).json({message: profileRes.data.message});
         } else{
-            dogstatsd.increment('users.register.successful_federated_identity');
+            dogstatsd.increment('users.register.successful_user_password');
             let user = await userService.getUser(username);
             dogstatsd.timing('users.register.successful_average_time', new Date() - new Date(user.creationDate));
             res.status(200).json({token: sessionToken(username)});
@@ -73,13 +73,12 @@ const signUpGoogle = async (req, res) => {
 
         if(profileRes.status !== 200){
             authService.deleteUser(user.username);
-            res.status(profileRes.status).json({message: response.data.message});
+            res.status(profileRes.status).json({message: profileRes.data.message});
         } else{
             dogstatsd.increment('users.register_federated_identity');
             res.status(200).json({token: sessionToken(user.username)});
         }
 	} catch(err){
-        console.log(err);
         res.status(err.statusCode).json({ message: err.message });
     }
 }

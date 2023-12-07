@@ -33,7 +33,6 @@ const askForVerification = async (req, res) => {
         try{
             decodedClaims = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
         } catch(err){
-            console.log(err);
             res.status(401).json('invalid token does not exist');
         }
         var username = decodedClaims.username;
@@ -41,12 +40,10 @@ const askForVerification = async (req, res) => {
 
         res.status(200).json('Request sent');
 	} catch(err){
-        console.log(err);
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
 }
 
-askForVerification
 module.exports = {
     getUsers,
     searchUser,

@@ -4,7 +4,7 @@
 	"description": "Microservice for handling signing in and signing up",
 	"main": "index.js",
 	"scripts": {
-		"test": "jest"
+		"test": "jest --coverage"
 	},
 	"author": "gstfrenkel",
 	"license": "ISC",
