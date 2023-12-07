@@ -57,6 +57,7 @@ const signIn = async (req, res) => {
         dogstatsd.increment('users.login.successful_user_password');
         res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
+	    console.log(err);
         dogstatsd.increment('users.login.fail_user_password');
         res.status(err.statusCode).json({ message: err.message });
     }
