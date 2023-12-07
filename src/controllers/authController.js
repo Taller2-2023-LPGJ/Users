@@ -22,6 +22,7 @@ const signUp = async (req, res) => {
         dogstatsd.increment('users.register.user_password');
         res.status(200).json('code sent');
 	} catch(err){
+	    console.log(err);
         res.status(err.statusCode).json({ message: err.message });
     }
 }
