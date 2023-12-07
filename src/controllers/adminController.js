@@ -15,13 +15,10 @@ const dogstatsd = new StatsD({
 });
 
 const signUp = async (req, res) => {
-    const { username, user, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try{
-        if(!(await userService.isAdmin(username, '')))
-            throw new Exception('User is forbidden from completing this action.', 403);
-
-		await authService.signUpAdmin(user, email, password);
+		await authService.signUpAdmin(username, email, password);
 
         res.status(200).json({message: 'Admin created.'});
 	} catch(err){
