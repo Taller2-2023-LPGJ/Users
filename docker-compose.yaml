@@ -6,12 +6,14 @@ services:
     build: . 
     ports:
       - 3000:3000  # Adjust the ports as needed
-    links:
-      - t2-users-db
     depends_on:
       - t2-users-db
+      - datadog
     networks:
-      - taller2    
+      - taller2
+    environment:
+     - DD_AGENT_HOST=datadog
+     - NODE_ENV=12
 
   # Servicio para PostgreSQL
   t2-users-db:
@@ -60,17 +62,23 @@ services:
     entrypoint: ["bash", "-c", "npx prisma migrate dev --name init"]
     restart: "no"
     networks:
-      - taller2  
+      - taller2
 
-  # dbsetup:
-  #   image: postgres
-  #   env_file: ./.env
-  #   depends_on:
-  #     - postgres
-  #   restart: "no"
-  #   volumes:
-  #     - ./initdb:/var/local/initdb
-  #   entrypoint: ["bash", "-c", "cd /var/local/initdb && PGPASSWORD=$${POSTGRES_PASSWORD} POSTGRES_HOST_AUTH_METHOD=trust psql -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB} -a -f migrations.sql"]
+  datadog:
+    image: datadog/agent:latest
+    environment:
+     - DD_API_KEY=029677d5a3dbc842345b5d858cfa998b
+     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+     - DD_AGENT_HOST=datadog
+     - DD_HEALTH_PORT=5555
+     - DD_SITE=us5.datadoghq.com
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /proc/:/host/proc/:ro
+     - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+    networks:
+     - taller2
+
 
 volumes:    
   postgres-data:

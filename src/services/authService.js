@@ -3,6 +3,7 @@ const otpGenerator = require('otp-generator')
 const { transporter, bodyEmailRecoverPassword, bodyEmailConfirmRegistration }  = require('../config/mailer');
 const authDatabase = require('../database/authDatabase');
 const Exception = require('./exception');
+const mail = require('./mail');
 const { error } = require('console');
 
 const bcryptRounds = 10;
@@ -17,7 +18,7 @@ function ecryptPassword(password){
 }
 
 async function signUp(username, email, password){
-	if(!usernameRegex.test(username))
+	if(!usernameRegex.test(username) || !username)
 		throw new Exception('Enter a valid username.', 422);
 	else if(!emailRegex.test(email))
 		throw new Exception('Enter a valid email.', 422);
@@ -35,7 +36,7 @@ async function signUp(username, email, password){
 		password = ecryptPassword(password);
 		await authDatabase.createUser(username, email, password, false, code, false);
 		var body = bodyEmailConfirmRegistration(username, code);
-		await sendMailCode('Confirm Registration', email, body, code);
+		await mail.sendMailCode('Confirm Registration', email, body, code);
 	} catch(err){
 		throw err;
 	}
@@ -126,18 +127,11 @@ async function recoverPassword(username){
 	let code = otpGenerator.generate(numberOfDigits, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 	
 	user.passkey = code;
+	user.recoverPasswordDate = new Date();
 	user.reset_expireby = new Date(new Date().getTime() + 3 * 60000);
 	await authDatabase.updateUser(user);
 	var body = bodyEmailRecoverPassword(username, code);
-	await sendMailCode('Password recovery', user.email, body);
-}
-async function sendMailCode(fromTitle, email, body){
-	await transporter.sendMail({
-		from: fromTitle + ' <notificacionesservidoremail@gmail.com>',
-		to: email,
-		subject: fromTitle,
-		html: body,
-	});
+	await mail.sendMailCode('Password recovery', user.email, body);
 }
 
 async function verifyCodeRecoverPassword(username, code){

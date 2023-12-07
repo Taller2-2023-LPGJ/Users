@@ -23,6 +23,7 @@ async function blockUser(username){
 			throw new Exception('The user has already been blocked.', 401);
 		}
         user.isBlocked = true;
+		user.blockDate = new Date();
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -35,10 +36,11 @@ async function unlockUser(username){
 		if(!user){
 			throw new Exception('User not found.', 404);
 		}
-        if(!user.isBlocked){
+        if(user.isBlocked){
 			throw new Exception('The user is already unlocked.', 403);
 		}
         user.isBlocked = false;
+		user.blockDate = null;
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -71,22 +73,18 @@ async function verifyUser(username, action){
 		if(!user){
 			throw new Exception('User not found.', 422);
 		}
-		if(user.verified === "Pending"){
-			if(action === "Yes"){
-				if(user.verified === "Yes"){
-					throw new Exception('The user has already been verified.', 422);
-				}
-			}else if(action === "No"){
-				if(user.verified === "No"){
-					throw new Exception('The user has already been denied verification.', 422);
-				}
+		if (user.verified === "Pending") {
+			if (action === "Yes") {
+				user.verified = true;
+			} else if (action === "No") {
 				user.verified = false;
-			}else{
-				throw new Exception('wrong action.', 422);
+			} else {
+				throw new Exception('Wrong action.', 422);
 			}
-		}else{
+		} else {
 			throw new Exception('No pending verification request exists for the user.', 422);
 		}
+
         user.verified = action;
 		await authDatabase.updateUser(user);
 	} catch(err){
@@ -140,12 +138,21 @@ async function isAdmin(username = '', email = ''){
 	}
 }
 
+async function getUser(username){
+	try{
+        var user = await authDatabase.getUser(username);
+		return user;
+	} catch(err){
+		throw err;
+	}
+}
 module.exports = {
     searchUser,
     blockUser,
     unlockUser,
     getAdmins,
     getUsers,
+	getUser,
 	verifyUser,
 	askForVerification,
 	blocked,

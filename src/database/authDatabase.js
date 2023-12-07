@@ -13,7 +13,9 @@ async function createUser(username, email, password, confirmedRegistration, pass
                 confirmedRegistration,
                 verified: isAdmin ? null : 'No',
                 passkey,
-                isAdmin
+                isAdmin,
+                creationDate: new Date()
+
             },
         });
     } catch(err){
@@ -247,7 +249,6 @@ module.exports = {
     verifyUserGoogle,
     getUser,
     updateUser,
-    deleteUser,
     searchUser,
     isAdmin,
     getUsersPagination

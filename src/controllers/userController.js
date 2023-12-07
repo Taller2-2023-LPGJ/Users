@@ -36,7 +36,6 @@ const askForVerification = async (req, res) => {
     }
 }
 
-askForVerification
 module.exports = {
     getUsers,
     searchUser,
