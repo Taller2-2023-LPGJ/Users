@@ -8,11 +8,9 @@ services:
       - 3000:3000  # Adjust the ports as needed
     depends_on:
       - t2-users-db
-      - datadog
     networks:
       - taller2
     environment:
-     - DD_AGENT_HOST=datadog
      - NODE_ENV=12
 
   # Servicio para PostgreSQL
