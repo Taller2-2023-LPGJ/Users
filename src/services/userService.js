@@ -134,7 +134,7 @@ async function isAdmin(username = '', email = ''){
 	try{
 		const admin = await authDatabase.isAdmin(username, email);
 
-		return admin.isAdmin
+		return admin && admin.isAdmin
 	} catch(err){
 		throw err;
 	}
