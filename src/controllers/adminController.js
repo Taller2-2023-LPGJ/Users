@@ -5,10 +5,13 @@ const { sessionToken } = require('../services/tokenService');
 const Exception = require('../services/exception');
 
 const signUp = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, user, email, password } = req.body;
 
     try{
-		await authService.signUpAdmin(username, email, password);
+        if(!(await userService.isAdmin(username, '')))
+            throw new Exception('User is forbidden from completing this action.', 403);
+
+		await authService.signUpAdmin(user, email, password);
 
         res.status(200).json({message: 'Admin created.'});
 	} catch(err){
