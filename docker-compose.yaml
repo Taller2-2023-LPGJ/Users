@@ -59,7 +59,7 @@ services:
       - t2-users-db
     ports:
       - "5051:5051"
-    entrypoint: ["bash", "-c", "sleep 10 && npx prisma migrate dev --name init"]
+    entrypoint: ["bash", "-c", "npx prisma migrate dev --name init"]
     restart: "no"
     networks:
       - taller2
@@ -78,6 +78,7 @@ services:
      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
     networks:
      - taller2
+
 
 volumes:    
   postgres-data:

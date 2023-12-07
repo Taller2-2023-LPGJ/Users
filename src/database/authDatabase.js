@@ -81,14 +81,12 @@ async function verifyUserGoogle(email){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.users.findFirst({
+        return await prisma.users.findFirst({
             where: { 
                 email: email,
                 isAdmin: false
             }
         });
-
-        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -100,11 +98,9 @@ async function getUser(username){
     const prisma = new PrismaClient();
 
 	try {
-        var user = await prisma.users.findFirst({
+        return await prisma.users.findFirst({
             where: { username: username }
         });
-
-        return user;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
@@ -148,9 +144,46 @@ async function updateUser(user){
     }
 }
 
+async function deleteUser(username){
+    const prisma = new PrismaClient();
+
+	try {
+        await prisma.users.delete({
+            where: { username: username }
+        });
+
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
+async function isAdmin(username, email){
+    const prisma = new PrismaClient();
+
+	try {
+        return await prisma.users.findFirst({
+            where: { 
+                OR: [
+                    {username: username},
+                    {email: email}
+                ],
+            },
+            select: {
+                isAdmin: true
+            }
+        });
+    } catch(err){
+        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
+    } finally{
+        await prisma.$disconnect();
+    }
+}
+
 async function getUsersPagination(query, isAdmin){
     const prisma = new PrismaClient();
-    var username = query.username;
+    var username = query.user;
     var email = query.email;
     var isBlocked = query.isBlocked;
     var verified = query.verified;
@@ -217,5 +250,6 @@ module.exports = {
     getUser,
     updateUser,
     searchUser,
+    isAdmin,
     getUsersPagination
 };
