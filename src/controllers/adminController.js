@@ -10,7 +10,7 @@ const signUp = async (req, res) => {
     try{
 		await authService.signUpAdmin(username, email, password);
 
-        res.status(200).json('Admin created.');
+        res.status(200).json({message: 'Admin created.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
@@ -31,28 +31,28 @@ const signIn = async (req, res) => {
 }
 
 const blockUser = async (req, res) => {
-    const {username} = req.body;
+    const {username, user} = req.body;
 
     try{
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
-		await userService.blockUser(username);
+		await userService.blockUser(user);
         
-        res.status(200).json('User has been successfully blocked.');
+        res.status(200).json({message: 'User has been successfully blocked.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
 }
 
 const unlockUser = async (req, res) => {
-    const {username} = req.body;
+    const {username, user} = req.body;
 
     try{
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
-		await userService.unlockUser(username);
+		await userService.unlockUser(user);
         
-        res.status(200).json('Unlocked user.');
+        res.status(200).json({message: 'Unlocked user.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }
@@ -62,7 +62,7 @@ const getAdmins = async (req, res) => {
     const query = req.query;
 
     try{
-        if(!(await userService.isAdmin(username)))
+        if(!(await userService.isAdmin(query.username)))
             throw new Exception('User is forbidden from completing this action.', 403);
 
 		let admins = await userService.getAdmins(query);
@@ -74,17 +74,17 @@ const getAdmins = async (req, res) => {
 }
 
 const verifyUser = async (req, res) => {
-    const {username, action} = req.body;
+    const {username, user, action} = req.body;
 
     try{
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
 
-		await userService.verifyUser(username, action);
+		await userService.verifyUser(user, action);
         if(action === "Yes"){
-			await axios.put(process.env.PROFILE_URL + "verifyProfile/" + username, {username: username});
+			await axios.put(process.env.PROFILE_URL + "verifyProfile/" + user, {username: user});
 		}
-        res.status(200).json('Action completed.');
+        res.status(200).json({message: 'Action completed.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
     }

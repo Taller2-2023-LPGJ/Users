@@ -181,7 +181,7 @@ async function isAdmin(username, email){
 
 async function getUsersPagination(query, isAdmin){
     const prisma = new PrismaClient();
-    var username = query.username;
+    var username = query.user;
     var email = query.email;
     var isBlocked = query.isBlocked;
     var verified = query.verified;
