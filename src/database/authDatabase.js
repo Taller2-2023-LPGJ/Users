@@ -71,6 +71,7 @@ async function verifyUser(userIdentifier, password, isAdmin){
             return false;
         return user;
     } catch(err){
+	console.log(err);
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
     } finally{
         await prisma.$disconnect();
