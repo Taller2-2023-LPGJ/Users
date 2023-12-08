@@ -72,6 +72,8 @@ services:
      - DD_AGENT_HOST=datadog
      - DD_HEALTH_PORT=5555
      - DD_SITE=us5.datadoghq.com
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
     networks:
      - taller2
 
