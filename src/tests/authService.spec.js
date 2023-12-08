@@ -17,15 +17,15 @@ describe('signUp', ()=>{
     });
 
     test('signUp successfully, user exist', async () => {
-        jest.spyOn(authDatabase, 'searchUser').mockImplementation( async () =>{
-			return {"username": "julianquino", "email": "julianquino@gmail.com"};
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return {username: "julianquino", email: "julianquino@gmail.com", confirmedRegistration: false};
 		});
         await authService.signUp("julianquino", "julianquino@gmail.com", "Julianquino1");
         expect(1).toEqual(1);
     });
 
 	test('signUp fail, Enter a valid username', async () => {
-		jest.spyOn(authDatabase, 'searchUser').mockImplementation( async () =>{
+		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
 			return null;
 		});
         try {
@@ -37,7 +37,7 @@ describe('signUp', ()=>{
     });
 
     test('signUp fail, Enter a valid email', async () => {
-		jest.spyOn(authDatabase, 'searchUser').mockImplementation( async () =>{
+		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
 			return null;
 		});
         try {
@@ -49,7 +49,7 @@ describe('signUp', ()=>{
     });
 
     test('signUp fail, Enter a valid password', async () => {
-		jest.spyOn(authDatabase, 'searchUser').mockImplementation( async () =>{
+		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
 			return null;
 		});
         try {
@@ -61,7 +61,7 @@ describe('signUp', ()=>{
     });
 
     test('Search user fail server', async () => {
-		jest.spyOn(authDatabase, 'createUser').mockImplementation( async () =>{
+		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
 			throw new Exception('fail', 500);
 		});
         try {
@@ -108,11 +108,9 @@ describe('signUpConfirm', ()=>{
 
     test('signUpConfirm fail, server', async () => {
 		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
-			return {"username": "julianquino", "passkey": "123456"};
-		});
-        jest.spyOn(authDatabase, 'updateUser').mockImplementation( async () =>{
 			throw new Exception('fail', 500);
 		});
+       
         try {
             await authService.signUpConfirm("julianquino", "123456");
         } catch (error) {
@@ -168,7 +166,7 @@ describe('signIn', ()=>{
 			return null;
 		});
         try {
-            await authService.signIn("julianquino", "pass");
+            await authService.signIn("julianquino", "Julianquino1");
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
             expect(error).toHaveProperty('statusCode', 422);
@@ -180,10 +178,10 @@ describe('signIn', ()=>{
 			return {username: "julianquino", isBlocked: true};
 		});
         try {
-            await authService.signIn("julianquino", "pass");
+            await authService.signIn("julianquino", "Julianquino1");
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
-            expect(error).toHaveProperty('statusCode', 422);
+            expect(error).toHaveProperty('statusCode', 403);
         }
     });
 
@@ -248,7 +246,7 @@ describe('recoverPassword', ()=>{
         jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
 			return {username: "julianquino", isBlocked: false};
 		});
-        let username = await authService.recoverPassword("julianquino");
+        await authService.recoverPassword("julianquino");
         expect(1).toEqual(1);
     });
 
@@ -313,6 +311,236 @@ describe('verifyCodeRecoverPassword', ()=>{
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
             expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+});
+
+describe('setPassword', ()=>{
+	test('setPassword successfully', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+            let date = new Date();
+            date.setDate(date.getDate() + 1);
+			return {username: "julianquino", code: "123456", reset_expireby: date, passkey: "123456"};
+		});
+        let result = await authService.setPassword("julianquino", "123456", "Julianquino1");
+        expect(result).toEqual(undefined);
+    });
+
+	test('setPassword fail, Enter a valid password', async () => {
+        try {
+            await authService.setPassword("julianquino", "123456", "pass");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('setPassword fail, User not found', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return null;
+		});
+        try {
+            await authService.setPassword("julianquino", "123456", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+});
+
+describe('signUpAdmin', ()=>{
+	test('signUpAdmin successfully', async () => {
+        let result = await authService.signUpAdmin("julianquino", "julianquino@gmail.com", "Julianquino1");
+        expect(result).toEqual(undefined);
+    });
+
+	test('signUpAdmin fail, Enter a valid username', async () => {
+        try {
+            await authService.signUpAdmin("j", "julianquino@gmail.com", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signUpAdmin fail, Enter a valid email', async () => {
+        try {
+            await authService.signUpAdmin("julianquino", "julianquino", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signUpAdmin fail, Enter a valid password', async () => {
+        try {
+            await authService.signUpAdmin("julianquino", "julianquino@gmail.com", "pass");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signUpAdmin fail, server', async () => {
+        jest.spyOn(authDatabase, 'createUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            await authService.signUpAdmin("julianquino", "julianquino@gmail.com", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
+        }
+    });
+});
+
+describe('signInAdmin', ()=>{
+	test('signInAdmin successfully', async () => {
+        jest.spyOn(authDatabase, 'verifyUser').mockImplementation( async () =>{
+			return {username: "julianquino"};
+		});
+        let result = await authService.signInAdmin("julianquino@gmail.com", "Julianquino1");
+        expect(result.username).toEqual("julianquino");
+    });
+
+	test('signInAdmin fail, Enter a valid email', async () => {
+        try {
+            await authService.signInAdmin("julianquino", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signInAdmin fail, Enter a valid password', async () => {
+        try {
+            await authService.signInAdmin("julianquino@gmail.com", "pass");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signInAdmin fail, Invalid email or password', async () => {
+        jest.spyOn(authDatabase, 'verifyUser').mockImplementation( async () =>{
+			return null;
+		});
+        try {
+            await authService.signInAdmin("julianquino@gmail.com", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signInAdmin fail, server', async () => {
+        jest.spyOn(authDatabase, 'verifyUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            await authService.signInAdmin("julianquino@gmail.com", "Julianquino1");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
+        }
+    });
+});
+
+describe('verifyAuthUser', ()=>{
+	test('verifyAuthUser successfully', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return {username: "julianquino", isBlocked: false};
+		});
+        let result = await authService.verifyAuthUser("julianquino");
+        expect(result.username).toEqual("julianquino");
+    });
+
+	test('verifyAuthUser fail, User not found', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return null;
+		});
+        try {
+            await authService.verifyAuthUser("julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 401);
+        }
+    });
+
+    test('verifyAuthUser fail, User blocked', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return {username: "julianquino", isBlocked: true};
+		});
+        try {
+            await authService.verifyAuthUser("julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 401);
+        }
+    });
+
+    test('verifyAuthUser fail, server', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            await authService.verifyAuthUser("julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
+        }
+    });
+});
+
+describe('signUpGoogle', ()=>{
+	test('signUpGoogle successfully', async () => {
+        let user = null;
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return user;
+		});
+        jest.spyOn(authDatabase, 'createUser').mockImplementation( async () =>{
+			user = {username: "julianquino"};
+		});
+        let result = await authService.signUpGoogle("julianquino", "julianquino@gmail.com");
+        expect(result.username).toEqual("julianquino");
+    });
+
+	test('signUpGoogle fail, Enter a valid email', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return null;
+		});
+        try {
+            await authService.signUpGoogle("julianquino", "julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 422);
+        }
+    });
+
+    test('signUpGoogle fail, server', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            await authService.signUpGoogle("julianquino", "julianquino@gmail.com");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
+        }
+    });
+
+    test('signUpGoogle fail, server', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return null;
+		});
+        jest.spyOn(authDatabase, 'createUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            await authService.signUpGoogle("julianquino", "julianquino@gmail.com");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
         }
     });
 });

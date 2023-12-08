@@ -275,39 +275,27 @@ describe('save password', ()=>{
     });
 });
 
-describe('verificar autenticación', ()=>{
-	test('verificar autenticación successfully', async () => {
-        await authController.verifyAuth({}, res);
-        expect(res.statusCode).toEqual(200);
-    });
-});
-
-describe('is Admin', ()=>{
-	test('is Admin', async () => {
-        jest.spyOn(userService, 'isAdmin').mockImplementation( async () =>{
-			return true;
+describe('blocked', ()=>{
+	test('blocked successfully', async () => {
+        jest.spyOn(userService, 'blocked').mockImplementation( async () =>{
+			return 200;
 		});
-        jest.spyOn(jwt, 'verify').mockImplementation( async () =>{
-			return {
-				username: "julianquino"
-			}
-		});
-		let headers = { token : "token"};
-        let isAdmin = await authController.isAdmin({ headers: headers}, res);
+		let query = {
+			"username": "julianquino"
+		};
+        await authController.blocked({ query: query }, res);
         expect(res.statusCode).toEqual(200);
     });
 
-	test('is Admin fail', async () => {
-		jest.spyOn(userService, 'isAdmin').mockImplementation( async () =>{
+	test('blocked fail', async () => {
+		jest.spyOn(userService, 'blocked').mockImplementation( async () =>{
 			throw new Exception('fail', 500);
 		});
-        jest.spyOn(jwt, 'verify').mockImplementation( async () =>{
-			return {
-				username: "julianquino"
-			}
-		});
-		let headers = { token : "token"};
-        await authController.isAdmin({ headers: headers }, res);
+
+		let query = {
+			"username": "julianquino"
+		};
+        await authController.blocked({ query: query }, res);
         expect(res.statusCode).toEqual(500);
     });
 });

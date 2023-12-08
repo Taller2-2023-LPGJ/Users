@@ -28,7 +28,7 @@ describe('Search user', ()=>{
             }
 		});
 		let query = {
-			"username": "julianquino"
+			username: "julianquino"
 		};
         await userController.searchUser({ query: query }, res);
         expect(res.statusCode).toEqual(200);
@@ -40,7 +40,7 @@ describe('Search user', ()=>{
 		});
 
 		let query = {
-			"username": "julianquino"
+			username: "julianquino"
 		};
         await userController.searchUser({ query: query }, res);
         expect(res.statusCode).toEqual(500);
@@ -74,31 +74,32 @@ describe('get users', ()=>{
 
 describe('Ask for verification', ()=>{
 	test('Ask for verification successfully', async () => {
-        jest.spyOn(jwt, 'verify').mockImplementation( async () =>{
-			return {
-                username: "julianquino"
-            }
-		});
-		let headers = {
-			token: "mitoken"
+		let body = {
+			username: "julianquino"
 		};
-        await userController.askForVerification({ headers: headers }, res);
+        await userController.askForVerification({ body: body }, res);
         expect(res.statusCode).toEqual(200);
     });
 
-	test('Ask for verification fail server', async () => {
-		jest.spyOn(jwt, 'verify').mockImplementation( async () =>{
-			return {
-                username: "julianquino"
-            }
-		});
+    test('Ask for verification fail server', async () => {
         jest.spyOn(userService, 'askForVerification').mockImplementation( async () =>{
 			throw new Exception('fail', 500);
 		});
-		let headers = {
-			token: "mitoken"
+		let body = {
+			username: "julianquino"
 		};
-        await userController.askForVerification({ headers: headers }, res);
+        await userController.askForVerification({ body: body }, res);
+        expect(res.statusCode).toEqual(500);
+    });
+    
+	test('Ask for verification fail server', async () => {
+        jest.spyOn(userService, 'askForVerification').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+		let body = {
+			username: "julianquino"
+		};
+        await userController.askForVerification({ body: body }, res);
         expect(res.statusCode).toEqual(500);
     });
 });

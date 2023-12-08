@@ -101,39 +101,19 @@ describe('Block a user', ()=>{
 
 describe('He is an administrator', ()=>{
 	test('He is an administrator successfully', async () => {
-        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+        jest.spyOn(authDatabase, 'isAdmin').mockImplementation( async () =>{
 			return {username: "julianquino", isAdmin: true};
 		});
-        let isAdmin = await userService.isAdmin("julianquino");
-        expect(isAdmin).toEqual(true);
-    });
-
-    test('Is not an administrator successfully', async () => {
-        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
-			return {username: "julianquino", isAdmin: false};
-		});
-        let isAdmin = await userService.isAdmin("julianquino");
-        expect(isAdmin).toEqual(false);
-    });
-
-	test('He is an administrator, fail User not found', async () => {
-		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
-			return null;
-		});
-        try {
-            let user = await userService.isAdmin("julianquino");
-        } catch (error) {
-            expect(error).toBeInstanceOf(Exception);
-            expect(error).toHaveProperty('statusCode', 422);
-        }
+        let result = await userService.isAdmin("julianquino", "julianquino@gmail.com");
+        expect(result).toEqual(true);
     });
 
     test('He is an administrator, fail server', async () => {
-		jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+		jest.spyOn(authDatabase, 'isAdmin').mockImplementation( async () =>{
 			throw new Exception('fail', 500);
 		});
         try {
-            let user = await userService.isAdmin("julianquino");
+            let user = await userService.isAdmin("julianquino", "julianquino@gmail.com");
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
             expect(error).toHaveProperty('statusCode', 500);
@@ -158,7 +138,7 @@ describe('unlocks user', ()=>{
             await userService.unlockUser("julianquino");
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
-            expect(error).toHaveProperty('statusCode', 422);
+            expect(error).toHaveProperty('statusCode', 404);
         }
     });
 
@@ -198,7 +178,7 @@ describe('Get administrators', ()=>{
 
     test('Get administrators fail', async () => {
 		jest.spyOn(authDatabase, 'getUsersPagination').mockImplementation( async () =>{
-			return null;
+			throw new Exception('fail', 500);
 		});
         try {
             let admins = await userService.getAdmins({});
@@ -220,7 +200,7 @@ describe('Get users', ()=>{
 
     test('Get users fail', async () => {
 		jest.spyOn(authDatabase, 'getUsersPagination').mockImplementation( async () =>{
-			return null;
+			throw new Exception('fail', 500);
 		});
         try {
             let admins = await userService.getUsers({});
@@ -382,6 +362,40 @@ describe('Get User', ()=>{
 		});
         try {
             let user = await userService.getUser("julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 500);
+        }
+    });
+});
+
+describe('blocked', ()=>{
+	test('blocked successfully', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return {username: "julianquino"};
+		});
+        let user = await userService.blocked("julianquino");
+        expect(1).toEqual(1);
+    });
+
+    test('blocked fail, User not found', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			return null;
+		});
+        try {
+            let user = await userService.blocked("julianquino");
+        } catch (error) {
+            expect(error).toBeInstanceOf(Exception);
+            expect(error).toHaveProperty('statusCode', 404);
+        }
+    });
+
+    test('blocked fail, server', async () => {
+        jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
+			throw new Exception('fail', 500);
+		});
+        try {
+            let user = await userService.blocked("julianquino");
         } catch (error) {
             expect(error).toBeInstanceOf(Exception);
             expect(error).toHaveProperty('statusCode', 500);
