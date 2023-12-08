@@ -77,8 +77,6 @@ services:
      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
      - DD_AGENT_HOST=datadog
      - DD_HEALTH_PORT=5555
-    volumes:
-     - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
      - taller2
 
