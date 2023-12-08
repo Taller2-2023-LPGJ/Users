@@ -64,16 +64,22 @@ services:
     networks:
       - taller2
 
+  redis:
+    image: redis
+
   datadog:
-    image: datadog/agent:latest
+    build: datadog
+    pid: host
     environment:
      - DD_API_KEY=029677d5a3dbc842345b5d858cfa998b
+     - DD_SITE=us5.datadoghq.com
      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
      - DD_AGENT_HOST=datadog
      - DD_HEALTH_PORT=5555
-     - DD_SITE=us5.datadoghq.com
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
+     - /proc/:/host/proc/:ro
+     - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
     networks:
      - taller2
 
