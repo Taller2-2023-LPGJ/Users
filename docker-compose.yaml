@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DD_API_KEY: 029677d5a3dbc842345b5d858cfa998b
-      DD_SITE: us5.datadoghq.com
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: ${DD_SITE}
     ports:
       - 3000:3000  # Adjust the ports as needed
     depends_on:
