@@ -90,16 +90,5 @@ describe('Ask for verification', ()=>{
 		};
         await userController.askForVerification({ body: body }, res);
         expect(res.statusCode).toEqual(500);
-    });
-    
-	test('Ask for verification fail server', async () => {
-        jest.spyOn(userService, 'askForVerification').mockImplementation( async () =>{
-			throw new Exception('fail', 500);
-		});
-		let body = {
-			username: "julianquino"
-		};
-        await userController.askForVerification({ body: body }, res);
-        expect(res.statusCode).toEqual(500);
-    });
+    });    
 });

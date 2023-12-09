@@ -124,7 +124,7 @@ describe('He is an administrator', ()=>{
 describe('unlocks user', ()=>{
 	test('unlocks user successfully', async () => {
         jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
-			return {username: "julianquino", isBlocked: false, blockDate: null};
+			return {username: "julianquino", isBlocked: true, blockDate: null};
 		});
         await userService.unlockUser("julianquino");
         expect(1).toEqual(1);
@@ -142,9 +142,9 @@ describe('unlocks user', ()=>{
         }
     });
 
-    test('unlocks user fail, user already blocked', async () => {
+    test('unlocks user fail, user already unlocks', async () => {
         jest.spyOn(authDatabase, 'getUser').mockImplementation( async () =>{
-			return {username: "julianquino", isBlocked: true, blockDate: null};
+			return {username: "julianquino", isBlocked: false, blockDate: null};
 		});
         try {
             await userService.unlockUser("julianquino");
