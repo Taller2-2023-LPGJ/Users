@@ -1,9 +1,8 @@
 const bcrypt = require('bcrypt');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('./client');
 const Exception = require('../services/exception');
 
 async function createUser(username, email, password, confirmedRegistration, passkey, isAdmin){
-    const prisma = new PrismaClient();
     try{
         await prisma.users.create({
             data: {
@@ -26,30 +25,10 @@ async function createUser(username, email, password, confirmedRegistration, pass
             default:
                 throw new Exception('An unexpected error has occurred. Please try again later.', 500);
           }
-    } finally{
-        await prisma.$disconnect();
-    }
-}
-
-async function deleteUser(username){
-    const prisma = new PrismaClient();
-
-    try {
-        await prisma.user.delete({
-            where: {
-                username: username,
-            },
-        });
-    } catch(error) {
-        throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function verifyUser(userIdentifier, password, isAdmin){
-    const prisma = new PrismaClient();
-
 	try {
         var user = await prisma.users.findFirst({
             where: {
@@ -71,16 +50,11 @@ async function verifyUser(userIdentifier, password, isAdmin){
             return false;
         return user;
     } catch(err){
-	console.log(err);
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function verifyUserGoogle(email){
-    const prisma = new PrismaClient();
-
 	try {
         return await prisma.users.findFirst({
             where: { 
@@ -90,28 +64,20 @@ async function verifyUserGoogle(email){
         });
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function getUser(username){
-    const prisma = new PrismaClient();
-
 	try {
         return await prisma.users.findFirst({
             where: { username: username }
         });
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function searchUser(user){
-    const prisma = new PrismaClient();
-
 	try {
         var userFound = await prisma.users.findFirst({
             where: { 
@@ -124,14 +90,10 @@ async function searchUser(user){
         return userFound;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function updateUser(user){
-    const prisma = new PrismaClient();
-
 	try {
         await prisma.users.update({
             where: { username: user.username },
@@ -140,14 +102,10 @@ async function updateUser(user){
 
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function deleteUser(username){
-    const prisma = new PrismaClient();
-
 	try {
         await prisma.users.delete({
             where: { username: username }
@@ -155,14 +113,10 @@ async function deleteUser(username){
 
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function isAdmin(username, email){
-    const prisma = new PrismaClient();
-
 	try {
         return await prisma.users.findFirst({
             where: { 
@@ -177,13 +131,10 @@ async function isAdmin(username, email){
         });
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 
 async function getUsersPagination(query, isAdmin){
-    const prisma = new PrismaClient();
     var username = query.user;
     var email = query.email;
     var isBlocked = query.isBlocked;
@@ -238,8 +189,6 @@ async function getUsersPagination(query, isAdmin){
         return result;
     } catch(err){
         throw new Exception('An unexpected error has occurred. Please try again later.', 500);
-    } finally{
-        await prisma.$disconnect();
     }
 }
 

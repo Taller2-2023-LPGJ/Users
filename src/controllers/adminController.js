@@ -4,15 +4,7 @@ const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
 const Exception = require('../services/exception');
 const StatsD  = require('hot-shots');
-const dogstatsd = new StatsD({
-    host: process.env.DD_AGENT_HOST,
-    globalTags: {
-      env: process.env.NODE_ENV,
-    },
-    errorHandler: function (error) {
-      console.error('Cannot connect to Datadog agent: ', error);
-    }
-});
+const dogstatsd = new StatsD();
 
 const signUp = async (req, res) => {
     const { username, user, email, password } = req.body;
