@@ -113,7 +113,7 @@ const setPassword = async (req, res) => {
     
     try{
 		await authService.setPassword(username, code, password);
-        dogstatsd.increment('users.recoverPassword.success_recover_password');
+        dogstatsd.increment('users.recoverPassword.success_recoverpassword');
         let user = await userService.getUser(username);
         dogstatsd.timing('users.recoverPassword.recover_time', new Date() - new Date(user.recoverPasswordDate));
         res.status(200).json('Password has been succesfully reset.');
