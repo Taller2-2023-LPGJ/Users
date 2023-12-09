@@ -30,7 +30,7 @@ const signUpConfirm = async (req, res) => {
             authService.deleteUser(username);
             res.status(profileRes.status).json({message: profileRes.data.message});
         } else{
-            dogstatsd.increment('users.register.successful_federated_identity');
+            dogstatsd.increment('users.register.successful_user_password');
             let user = await userService.getUser(username);
             dogstatsd.timing('users.register.successful_average_time', new Date() - new Date(user.creationDate));
             res.status(200).json({token: sessionToken(username)});
