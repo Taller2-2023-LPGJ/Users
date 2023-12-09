@@ -1,0 +1,61 @@
+name: Users
+
+# The build section defines how to build the images of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#build
+build:
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD_T2_USERS_REGISTRY: image registry
+  #  - OKTETO_BUILD_T2_USERS_REPOSITORY: image repo
+  #  - OKTETO_BUILD_T2_USERS_IMAGE: image name
+  #  - OKTETO_BUILD_T2_USERS_SHA: image tag sha256
+  t2-users:
+    context: .
+    dockerfile: Dockerfile
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD_T2_USERS_PRISMA_REGISTRY: image registry
+  #  - OKTETO_BUILD_T2_USERS_PRISMA_REPOSITORY: image repo
+  #  - OKTETO_BUILD_T2_USERS_PRISMA_IMAGE: image name
+  #  - OKTETO_BUILD_T2_USERS_PRISMA_SHA: image tag sha256
+  t2-users-prisma:
+    context: .
+    dockerfile: Dockerfile
+
+# The deploy section defines how to deploy your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#deploy
+deploy:
+  compose:
+    file: docker-compose.yaml
+
+# The dependencies section defines other git repositories to be deployed as part of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#dependencies
+# dependencies:
+#   - https://github.com/okteto/sample
+
+
+# The dev section defines how to activate a development container
+# More info: https://www.okteto.com/docs/reference/manifest/#dev
+dev:
+  datadog:
+    image: okteto/dotnetcore:3
+    command: bash
+    remote: 22000
+    sync:
+      - datadog:/usr/src/app
+    forward:
+      - 8125:8125
+      - 8126:8126
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - VSTEST_HOST_DEBUG=0
+      - VSTEST_RUNNER_DEBUG=0
+  t2-users:
+    command: bash
+    workdir: /usr/src/app
+    sync:
+      - .:/usr/src/app
+    forward:
+      - 9229:9229
+      - 3000:3000
+
