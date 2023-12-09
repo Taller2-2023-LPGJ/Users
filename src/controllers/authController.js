@@ -45,7 +45,7 @@ const signIn = async (req, res) => {
 
     try{
 		const user = await authService.signIn(userIdentifier, password);
-        dogstatsd.increment('users.login.successful_user_password');
+        dogstatsd.increment('users.login.successful_user_and_password');
         res.status(200).json({token: sessionToken(user.username)});
 	} catch(err){
         dogstatsd.increment('users.login.fail_user_password');
@@ -89,7 +89,7 @@ const recoverPassword = async (req, res) => {
 
     try{
 		await authService.recoverPassword(username);
-        dogstatsd.increment('users.recoverPassword.requests_recover_password');
+        dogstatsd.increment('users.recoverPassword.recover_password');
         res.status(200).json('send mail');
 	} catch(err){
         res.status(err.statusCode).json({ message: err.message });

@@ -3,6 +3,7 @@ const authService = require('../services/authService');
 const userService = require('../services/userService');
 const { sessionToken } = require('../services/tokenService');
 const Exception = require('../services/exception');
+
 const StatsD  = require('hot-shots');
 const dogstatsd = new StatsD();
 
@@ -42,7 +43,7 @@ const blockUser = async (req, res) => {
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
 		await userService.blockUser(user);
-        
+        dogstatsd.increment('users.block.number_blocked');
         res.status(200).json({message: 'User has been successfully blocked.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
@@ -56,7 +57,7 @@ const unlockUser = async (req, res) => {
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
 		await userService.unlockUser(user);
-        
+        dogstatsd.timing('users.block.number_blocked', new Date() - new Date(user.blockDate));
         res.status(200).json({message: 'Unlocked user.'});
 	} catch(err){
         res.status(err.statusCode ?? 500).json({ message: err.message ?? 'An unexpected error has occurred. Please try again later.'});
