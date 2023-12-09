@@ -57,8 +57,8 @@ const unlockUser = async (req, res) => {
         if(!(await userService.isAdmin(username)))
             throw new Exception('User is forbidden from completing this action.', 403);
 		await userService.unlockUser(user);
-        let user = await userService.getUser(username);
-        dogstatsd.timing('users.block.blocked_time', new Date() - new Date(user.blockDate));
+        let userdata = await userService.getUser(username);
+        dogstatsd.timing('users.block.blocked_time', new Date() - new Date(userdata.blockDate));
         
         res.status(200).json({message: 'Unlocked user.'});
 	} catch(err){
