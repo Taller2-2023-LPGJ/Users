@@ -4,6 +4,8 @@ FROM node:18.17.1
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
+RUN apt-get install -y gpg apt-transport-https gpg-agent curl ca-certificates
+
 ENV DATADOG_APT_KEYRING="/usr/share/keyrings/datadog-archive-keyring.gpg"
 ENV DATADOG_APT_KEYS_URL="https://keys.datadoghq.com"
 RUN sh -c "echo 'deb [signed-by=${DATADOG_APT_KEYRING}] https://apt.datadoghq.com/ stable 7' > /etc/apt/sources.list.d/datadog.list"
@@ -23,7 +25,8 @@ COPY package*.json ./
 # generated prisma files
 COPY prisma ./prisma/
 
-COPY env.example ./.env
+#COPY env.example ./.env
+COPY .env ./
 
 # Install project dependencies
 RUN npm install

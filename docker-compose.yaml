@@ -3,7 +3,12 @@ services:
   #Servicio para NodeJS
   t2-users:
     container_name: t2-users
-    build: . 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DD_API_KEY: 029677d5a3dbc842345b5d858cfa998b
+      DD_SITE: us5.datadoghq.com
     ports:
       - 3000:3000  # Adjust the ports as needed
     depends_on:
