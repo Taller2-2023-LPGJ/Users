@@ -1,11 +1,12 @@
 # Users
-Dedicado al registro e inicio de sesión de los usuarios
+User account interaction with app: sign-up, sign-in, password recovery, among others.
 
+## Available Scripts
 
-# Levantar el ambiente
+### `npm test`
 
-Copiar env.example y renombrar a .env
+Launches the test runner in the interactive watch mode.\
 
-npm install
+### `docker-compose up`
 
-docker-compose up -d
+Creates the images and containers necessary for the deployment and locally runs the app in port 3000.\

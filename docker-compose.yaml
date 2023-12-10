@@ -3,19 +3,24 @@ services:
   #Servicio para NodeJS
   t2-users:
     container_name: t2-users
-    build: . 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: ${DD_SITE}
     ports:
       - 3000:3000  # Adjust the ports as needed
-    links:
-      - t2-users-db
     depends_on:
       - t2-users-db
     networks:
-      - taller2    
+      - taller2
 
   # Servicio para PostgreSQL
   t2-users-db:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.db
     container_name: t2-users-db
     restart: always
     environment:
@@ -31,7 +36,9 @@ services:
 
   # Servicio para PgAdmin
   t2-users-pgadmin:
-    image: dpage/pgadmin4:latest
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.pgadmin
     container_name: t2-users-pgadmin
     restart: always
     environment:
@@ -60,18 +67,7 @@ services:
     entrypoint: ["bash", "-c", "npx prisma migrate dev --name init"]
     restart: "no"
     networks:
-      - taller2  
-
-  # dbsetup:
-  #   image: postgres
-  #   env_file: ./.env
-  #   depends_on:
-  #     - postgres
-  #   restart: "no"
-  #   volumes:
-  #     - ./initdb:/var/local/initdb
-  #   entrypoint: ["bash", "-c", "cd /var/local/initdb && PGPASSWORD=$${POSTGRES_PASSWORD} POSTGRES_HOST_AUTH_METHOD=trust psql -h postgres -U $${POSTGRES_USER} -d $${POSTGRES_DB} -a -f migrations.sql"]
-
+      - taller2
 volumes:    
   postgres-data:
   pgadmin-data:

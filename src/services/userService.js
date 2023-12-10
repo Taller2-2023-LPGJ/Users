@@ -23,6 +23,7 @@ async function blockUser(username){
 			throw new Exception('The user has already been blocked.', 401);
 		}
         user.isBlocked = true;
+		user.blockDate = new Date();
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -39,6 +40,7 @@ async function unlockUser(username){
 			throw new Exception('The user is already unlocked.', 403);
 		}
         user.isBlocked = false;
+		user.blockDate = null;
 		await authDatabase.updateUser(user);
 	} catch(err){
 		throw err;
@@ -134,18 +136,27 @@ async function isAdmin(username = '', email = ''){
 	try{
 		const admin = await authDatabase.isAdmin(username, email);
 
-		return admin.isAdmin
+		return admin && admin.isAdmin
 	} catch(err){
 		throw err;
 	}
 }
 
+async function getUser(username){
+	try{
+        var user = await authDatabase.getUser(username);
+		return user;
+	} catch(err){
+		throw err;
+	}
+}
 module.exports = {
     searchUser,
     blockUser,
     unlockUser,
     getAdmins,
     getUsers,
+	getUser,
 	verifyUser,
 	askForVerification,
 	blocked,

@@ -20,4 +20,7 @@ model users {
   isAdmin Boolean @default(false)
   isBlocked Boolean @default(false)
   reset_expireby DateTime?
+  creationDate DateTime?
+  blockDate DateTime?
+  recoverPasswordDate DateTime?
 }
